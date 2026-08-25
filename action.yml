@@ -42,7 +42,7 @@ runs:
 
     - name: Build mflint
       shell: bash
-      run: go build -o /tmp/mflint-bin "${{ github.action_path }}/../cmd/mflint"
+      run: go build -o /tmp/mflint-bin "${{ github.action_path }}/cmd/mflint"
 
     - name: Run mflint
       id: lint

@@ -85,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: &lt;owner&gt;/&lt;repo&gt;/action@main
+      - uses: Mehrshadshaabani/kubzimanifest@v1
         with:
           path: ./manifests
           cloud: aws</code></pre>
@@ -93,7 +93,7 @@ jobs:
 
   <h2>Authenticating so CI doesn't hit the anonymous rate limit</h2>
   <p>Every check runs against the hosted API, and anonymous requests share a per-IP rate limit — fine for occasional local use, but a busy CI runner can trip it under real usage. Generate an API key from the panel (<em>Open the tool → API keys</em>), store it as a repository secret, and pass it to the Action:</p>
-  <pre><code>      - uses: &lt;owner&gt;/&lt;repo&gt;/action@main
+  <pre><code>      - uses: Mehrshadshaabani/kubzimanifest@v1
         with:
           path: ./manifests
           cloud: aws

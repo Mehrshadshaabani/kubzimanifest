@@ -24,7 +24,8 @@ static list-price estimates, not a guaranteed bill.
 - `web/` — `landing.html` (marketing, at `/`), `index.html` (the tool + API key panel, at `/app`),
   `login.html` (OAuth sign-in, at `/login`), `docs.html` (API reference, at `/docs`) — all served
   by `cmd/server`
-- `action/` — GitHub Action wrapping the CLI for PR comments
+- `action.yml` — GitHub Action wrapping the CLI for PR comments (lives at repo root — GitHub
+  Marketplace requires that)
 - `testdata/manifests/` — sample good/bad manifests
 
 ## CLI
@@ -175,7 +176,7 @@ docker compose up -d --build
 
 **This is live**: deployed at `https://cubzi.cloud` (a 1 vCPU / 1 GB VPS — fine for early traffic,
 revisit sizing once real usage shows up), TLS issued automatically by Caddy. `cmd/mflint/api.go`'s
-`defaultAPIBase` and `action/action.yml`'s `api-base` default both already point at it. Google/
+`defaultAPIBase` and `action.yml`'s `api-base` default both already point at it. Google/
 GitHub OAuth and NOWPayments are still unset there (see "What's stubbed on purpose" below) —
 sign-in and paid checkout stay disabled until those env vars are added to the VPS's `deploy/.env`
 and the stack is restarted (`docker compose up -d`).
@@ -189,7 +190,7 @@ normal (non-Iran) egress.
 ## GitHub Action
 
 ```yaml
-- uses: <owner>/<repo>/action@main
+- uses: Mehrshadshaabani/kubzimanifest@v1
   with:
     path: ./manifests
     cloud: aws
