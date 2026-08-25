@@ -17,9 +17,9 @@ static list-price estimates, not a guaranteed bill.
 - `internal/auth` — OAuth-only sign-in (Google + GitHub, see below) + JWT sessions; no passwords.
   Also mints/hashes long-lived API keys (`mflint_...`, see below) — a separate concept from a
   session JWT, told apart by prefix.
-- `internal/billing` — `Provider` interface; `NOWPaymentsProvider` (crypto, see below) is registered
-  when configured, `NoopProvider` otherwise. `StripeProvider` is a shape/TODO only — Stripe doesn't
-  support Iran-based accounts.
+- `internal/billing` — `Provider` interface; `CoinGateProvider` (crypto, see below) is registered
+  when configured, falling back to `NOWPaymentsProvider` then `NoopProvider`. `StripeProvider` is a
+  shape/TODO only — Stripe doesn't support Iran-based accounts.
 - `internal/api` — chi HTTP API
 - `web/` — `landing.html` (marketing, at `/`), `index.html` (the tool + API key panel, at `/app`),
   `login.html` (OAuth sign-in, at `/login`), `docs.html` (API reference, at `/docs`) — all served
@@ -85,8 +85,12 @@ reports, and billing routes just aren't registered.
 - `GET /v1/reports` — auth required, lists the caller's saved reports
 - `GET /v1/usage` — auth required, `{"plan", "limit", "used", "remaining"}` for the current month
 - `GET /v1/billing/plan` — auth required, current plan (defaults to `free`)
-- `POST /v1/billing/checkout` — auth required, `{"plan": "team"|"pro"}`; creates a NOWPayments
-  invoice and returns `{"url", "orderId"}` when configured (see below), 501 otherwise
+- `POST /v1/billing/checkout` — auth required, `{"plan": "team"|"pro"}`; creates a CoinGate order
+  (or NOWPayments invoice) and returns `{"url", "orderId"}` when configured (see below), 501
+  otherwise
+- `POST /v1/billing/webhook/coingate` — public; on a callback, re-fetches the order from
+  CoinGate's authenticated API rather than trusting the callback body itself (see
+  `CoinGateProvider`'s doc comment), then upgrades the paying user's plan if it's paid.
 - `POST /v1/billing/webhook/nowpayments` — public; authenticates via the `x-nowpayments-sig` HMAC
   header instead of a bearer token. Upgrades the paying user's plan on a confirmed payment.
 - `GET /v1/api-keys`, `POST /v1/api-keys` (`{"label"}`), `DELETE /v1/api-keys/{id}` — auth
@@ -125,22 +129,31 @@ Create the OAuth app yourself (I can't do this step for you):
 Either provider works independently — you don't need both. With neither configured, `/login`
 still loads but shows both buttons disabled (via `GET /v1/auth/providers`).
 
-### Crypto billing (NOWPayments)
+### Crypto billing (CoinGate)
 
 Set these env vars to make `/v1/billing/checkout` actually work:
 
 ```sh
-export NOWPAYMENTS_API_KEY="..."
-export NOWPAYMENTS_IPN_SECRET="..."
-export NOWPAYMENTS_API_BASE="https://api-sandbox.nowpayments.io"   # sandbox; omit for production
-export NOWPAYMENTS_CALLBACK_URL="https://your-domain/v1/billing/webhook/nowpayments"
+export COINGATE_API_KEY="..."
+export COINGATE_API_BASE="https://api-sandbox.coingate.com"   # sandbox; https://api.coingate.com for production
+export COINGATE_CALLBACK_URL="https://your-domain/v1/billing/webhook/coingate"
+export COINGATE_SUCCESS_URL="https://your-domain/app"          # optional
+export COINGATE_RECEIVE_CURRENCY="USD"                          # asset settled into your CoinGate balance
 ```
 
-Get an API key + IPN secret from the Store Settings tab at **account-sandbox.nowpayments.io**
-(free, no real funds needed — the sandbox can simulate any payment outcome) or
-**account.nowpayments.io** for production. I can't create this account for you; it's a manual
+Get an API key from your account's API settings at **sandbox.coingate.com** (free, no real funds
+needed) or **coingate.com** for production. I can't create this account for you; it's a manual
 signup step. Team is priced at $19, Pro at $49 (`internal/billing/nowpayments.go`'s
-`planPriceUSD` — edit alongside the pricing table in the original spec if it changes).
+`planPriceUSD` — shared by both providers; edit alongside the pricing table in the original spec
+if it changes).
+
+Unlike most webhook-based integrations, CoinGate's callback body isn't itself signed — see
+`CoinGateProvider`'s doc comment (`internal/billing/coingate.go`) for how `HandleWebhook`
+establishes trust by re-fetching the order from CoinGate's authenticated API instead.
+
+NOWPayments is still supported as a fallback (`NOWPAYMENTS_API_KEY` etc., used only when
+`COINGATE_API_KEY` is unset) — the two were evaluated side by side and CoinGate is the one
+actually configured on the live deployment, but both implementations are equally real/tested.
 
 ## Deploying to a VPS
 
@@ -200,7 +213,8 @@ estimator and parser have their own unit tests.
 ## What's stubbed on purpose
 
 - **Card payments**: `internal/billing.StripeProvider` exists only as a shape/TODO — Stripe
-  doesn't operate in Iran. NOWPayments (crypto) is the one actually wired in when configured.
+  doesn't operate in Iran. CoinGate (crypto, with NOWPayments as a tested fallback) is what's
+  actually wired in when configured.
 - **Google/GitHub OAuth apps**: the code is complete and wired in, but each provider only turns on
   once you've created that OAuth app yourself and set its env vars — see "Sign-in" above.
 - **Email delivery**: not addressed — there's no email-based flow to begin with (OAuth-only

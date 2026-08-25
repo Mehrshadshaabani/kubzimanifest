@@ -40,9 +40,10 @@ func (s *Server) Router() http.Handler {
 		v1.Get("/auth/providers", s.handleAuthProviders)
 
 		if s.Store != nil {
-			// Authenticates via the provider's own HMAC signature, not a
-			// bearer token, so it stays outside the requireAuth group.
+			// Authenticate via the provider's own mechanism, not a bearer
+			// token, so these stay outside the requireAuth group.
 			v1.Post("/billing/webhook/nowpayments", s.handleNOWPaymentsWebhook)
+			v1.Post("/billing/webhook/coingate", s.handleCoinGateWebhook)
 
 			v1.Group(func(protected chi.Router) {
 				protected.Use(s.requireAuth)

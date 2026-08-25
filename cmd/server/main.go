@@ -13,8 +13,16 @@
 //	                    /callback routes are only registered once both its client id and
 //	                    secret are set. REDIRECT_URL must exactly match what's registered
 //	                    with that provider, e.g. https://your-domain/v1/auth/google/callback
-//	NOWPAYMENTS_API_KEY / NOWPAYMENTS_IPN_SECRET  crypto billing via NOWPayments; unset falls
-//	                    back to NoopProvider (checkout 501s). Get these from your account at
+//	COINGATE_API_KEY    crypto billing via CoinGate; unset falls back to NOWPayments (below),
+//	                    then to NoopProvider (checkout 501s). Get a key from your account at
+//	                    sandbox.coingate.com (testing, no real funds) or coingate.com
+//	                    (production), API settings.
+//	COINGATE_API_BASE       defaults to the sandbox API (https://api-sandbox.coingate.com)
+//	COINGATE_CALLBACK_URL   public URL of this server's /v1/billing/webhook/coingate route
+//	COINGATE_SUCCESS_URL    where CoinGate sends the user back after paying (optional)
+//	COINGATE_RECEIVE_CURRENCY  asset settled into your CoinGate balance (default "USD")
+//	NOWPAYMENTS_API_KEY / NOWPAYMENTS_IPN_SECRET  crypto billing via NOWPayments; used only if
+//	                    COINGATE_API_KEY is unset. Get these from your account at
 //	                    account-sandbox.nowpayments.io (testing, no real funds) or
 //	                    account.nowpayments.io (production), Store Settings tab.
 //	NOWPAYMENTS_API_BASE     defaults to the sandbox API (https://api-sandbox.nowpayments.io)
@@ -55,7 +63,16 @@ func main() {
 		log.Println("GITHUB_OAUTH_CLIENT_ID/SECRET not set: sign-in with GitHub disabled")
 	}
 
-	if apiKey := os.Getenv("NOWPAYMENTS_API_KEY"); apiKey != "" {
+	if apiKey := os.Getenv("COINGATE_API_KEY"); apiKey != "" {
+		srv.Billing = billing.NewCoinGateProvider(
+			apiKey,
+			os.Getenv("COINGATE_API_BASE"),
+			os.Getenv("COINGATE_CALLBACK_URL"),
+			os.Getenv("COINGATE_SUCCESS_URL"),
+			os.Getenv("COINGATE_RECEIVE_CURRENCY"),
+		)
+		log.Println("CoinGate configured: billing checkout is live")
+	} else if apiKey := os.Getenv("NOWPAYMENTS_API_KEY"); apiKey != "" {
 		srv.Billing = billing.NewNOWPaymentsProvider(
 			apiKey,
 			os.Getenv("NOWPAYMENTS_IPN_SECRET"),
@@ -64,7 +81,7 @@ func main() {
 		)
 		log.Println("NOWPayments configured: billing checkout is live")
 	} else {
-		log.Println("NOWPAYMENTS_API_KEY not set: billing checkout will 501 (NoopProvider)")
+		log.Println("COINGATE_API_KEY / NOWPAYMENTS_API_KEY not set: billing checkout will 501 (NoopProvider)")
 	}
 
 	if dsn := os.Getenv("DATABASE_URL"); dsn != "" {

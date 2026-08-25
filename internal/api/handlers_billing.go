@@ -71,7 +71,24 @@ func (s *Server) handleNOWPaymentsWebhook(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	orderID, paid, err := s.Billing.HandleWebhook(r.Context(), body, r.Header.Get("x-nowpayments-sig"))
+	s.finishWebhook(w, r, body, r.Header.Get("x-nowpayments-sig"))
+}
+
+// handleCoinGateWebhook is public (registered outside the requireAuth
+// group): CoinGate's callback body isn't itself signed, so authenticity
+// comes from CoinGateProvider.HandleWebhook re-fetching the order from
+// CoinGate's API instead — see that type's doc comment.
+func (s *Server) handleCoinGateWebhook(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(io.LimitReader(r.Body, maxWebhookBytes))
+	if err != nil {
+		http.Error(w, "reading webhook body", http.StatusBadRequest)
+		return
+	}
+	s.finishWebhook(w, r, body, "")
+}
+
+func (s *Server) finishWebhook(w http.ResponseWriter, r *http.Request, body []byte, signature string) {
+	orderID, paid, err := s.Billing.HandleWebhook(r.Context(), body, signature)
 	if err != nil {
 		http.Error(w, "invalid webhook", http.StatusBadRequest)
 		return
