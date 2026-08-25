@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NetworkPolicy 101: Why Your Namespace's Pod Traffic Might Be Wide Open — Cubzi</title>
+<meta name="description" content="Kubernetes networking defaults to allow-all between pods, cluster-wide. Here's what that means in practice and how to close it with a NetworkPolicy.">
+<link rel="canonical" href="https://cubzi.cloud/blog/kubernetes-networkpolicy-explained">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NetworkPolicy 101: Why Your Namespace's Pod Traffic Might Be Wide Open">
+<meta property="og:description" content="Kubernetes networking defaults to allow-all between pods, cluster-wide. Here's what that means in practice and how to close it with a NetworkPolicy.">
+<meta property="og:url" content="https://cubzi.cloud/blog/kubernetes-networkpolicy-explained">
+<style>
+:root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+a{color:var(--info)}
+.wrap{max-width:720px;margin:0 auto;padding:0 1.5rem}
+nav{border-bottom:1px solid var(--border);padding:1rem 0}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;max-width:900px}
+.logo{font-weight:700;font-size:1.15rem;text-decoration:none;color:var(--text)}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:.88rem;margin-left:1.1rem}
+.navlinks a:hover{color:var(--text)}
+article{padding:3rem 0 3rem}
+.crumb{font-size:.85rem;margin-bottom:1.5rem}
+.crumb a{color:var(--muted)}
+article h1{font-size:1.9rem;line-height:1.25;margin:0 0 .6rem;letter-spacing:-.01em}
+.meta{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+article h2{font-size:1.25rem;margin:2.2rem 0 .75rem;letter-spacing:-.01em}
+article h3{font-size:1.02rem;margin:1.5rem 0 .5rem}
+article p{margin:0 0 1rem}
+article ul,article ol{margin:0 0 1rem;padding-left:1.4rem}
+article li{margin-bottom:.4rem}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--panel-2);border:1px solid var(--border);border-radius:4px;padding:.1rem .35rem;font-size:.88em}
+pre{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;overflow-x:auto;font-size:.85rem}
+pre code{background:none;border:none;padding:0}
+.callout{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;font-size:.92rem;color:var(--muted)}
+.cta{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-top:2.5rem;text-align:center}
+.cta a{display:inline-block;margin-top:.75rem;background:var(--accent);color:#04170a;padding:.65rem 1.3rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem}
+.related{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.related h2{margin-top:0}
+.related ul{list-style:none;padding:0}
+.related li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1rem 0}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted)}
+footer{border-top:1px solid var(--border);padding:2rem 0;color:var(--muted);font-size:.82rem}
+footer .wrap{max-width:900px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+footer a{color:var(--muted)}
+.whatsapp-fab{position:fixed;right:1.25rem;bottom:1.25rem;z-index:20;width:3.25rem;height:3.25rem;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);text-decoration:none}
+.whatsapp-fab svg{width:1.6rem;height:1.6rem}
+@media(max-width:640px){.navlinks{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/">Cubzi</a>
+    <div class="navlinks">
+      <a href="/blog">Blog</a>
+      <a href="/docs">API docs</a>
+      <a href="/login">Open the tool</a>
+    </div>
+  </div>
+</nav>
+
+<article class="wrap">
+  <div class="crumb"><a href="/blog">← Blog</a></div>
+  <h1>NetworkPolicy 101: Why Your Namespace's Pod Traffic Might Be Wide Open</h1>
+  <p class="meta">Security &middot; 6 min read</p>
+
+  <p>Here's a fact that surprises a lot of people the first time they hear it: by default, any pod in a Kubernetes cluster can send traffic to any other pod in any namespace, on any port. There's no implicit isolation between namespaces, and there's no implicit isolation between an internal admin service and a public-facing web frontend, unless something has explicitly said otherwise.</p>
+
+  <h2>Why Kubernetes defaults this way</h2>
+  <p>Kubernetes networking is deliberately unopinionated at the base layer — the CNI plugin provides pod-to-pod connectivity, full stop, and policy enforcement is an opt-in layer on top (implemented by the CNI plugin, which is why NetworkPolicy support depends on which CNI you're running — Calico, Cilium, and most managed cluster CNIs support it; the default kubenet on some older setups doesn't). The result is a cluster that "just works" for connectivity out of the box, at the cost of having zero network segmentation until someone adds it.</p>
+
+  <h2>What a NetworkPolicy actually does</h2>
+  <p>A <code>NetworkPolicy</code> is a namespace-scoped object that selects a set of pods (via labels) and then defines allowed ingress and/or egress rules for them. The moment any NetworkPolicy selects a pod, that pod's traffic in the direction(s) covered by the policy switches from allow-all to deny-all-except-what's-listed. No policy at all means no restriction; one policy means only that policy's rules apply.</p>
+  <pre><code>apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-allow-frontend-only
+spec:
+  podSelector:
+    matchLabels:
+      app: api
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - port: 8080</code></pre>
+  <p>This example says: pods labeled <code>app: api</code> only accept ingress traffic from pods labeled <code>app: frontend</code>, on port 8080. Everything else — traffic from other namespaces, other services in the same namespace, egress to arbitrary destinations — is untouched by this specific policy (egress stays open unless a separate policy addresses it too).</p>
+
+  <h2>A practical starting point</h2>
+  <p>Rather than trying to write precise policies for every service on day one, many teams start with a default-deny baseline per namespace and then add specific allow rules as needed:</p>
+  <pre><code>apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]</code></pre>
+  <p>An empty <code>podSelector</code> matches every pod in the namespace; with no <code>ingress</code> rules listed, nothing is allowed in. From there, each service that legitimately needs to receive traffic gets its own explicit allow rule — which also has the side benefit of making your namespace's actual traffic topology visible in the manifests themselves, instead of implicit and undocumented.</p>
+
+  <div class="cta">
+    <p>Check your own manifests against these rules in seconds — free.</p>
+    <a href="/login">Check a manifest free →</a>
+  </div>
+
+  <div class="related">
+    <h2>Related</h2>
+    <ul>
+      <li><a href="/blog/kubernetes-manifest-security-checklist">Kubernetes Manifest Security Checklist: 13 Things to Check Before You Deploy</a></li>
+      <li><a href="/blog/common-kubernetes-misconfigurations">Common Kubernetes Misconfigurations That Lead to Security Incidents</a></li>
+    </ul>
+  </div>
+</article>
+
+<footer>
+  <div class="wrap">
+    <p>Cubzi — pre-deploy Kubernetes linting + cost estimation.</p>
+    <div><a href="/">Home</a> &middot; <a href="/docs">API docs</a> &middot; <a href="/login">Open the tool</a></div>
+  </div>
+</footer>
+
+<a class="whatsapp-fab" href="https://wa.me/447346473123" target="_blank" rel="noopener" aria-label="Chat with support on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.1c-.24.68-1.4 1.3-1.93 1.35-.53.06-1.03.27-3.44-.72-2.9-1.19-4.76-4.15-4.9-4.34-.14-.19-1.17-1.56-1.17-2.98s.74-2.11 1-2.4c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.14.07.15.12.32.02.51-.1.19-.15.3-.29.47-.15.17-.31.37-.44.5-.15.15-.3.31-.13.6.17.29.76 1.26 1.64 2.04 1.13 1 2.08 1.32 2.37 1.47.29.15.46.12.63-.07.17-.19.72-.84.92-1.13.19-.29.38-.24.64-.14.26.1 1.66.78 1.94.93.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+</a>
+
+</body>
+</html>

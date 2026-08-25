@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From Free Tier to Production: A Guide to Kubernetes Cost Optimization — Cubzi</title>
+<meta name="description" content="Where Kubernetes cloud spend actually goes, and the manifest-level changes that move the cost needle most, from early-stage to production scale.">
+<link rel="canonical" href="https://cubzi.cloud/blog/kubernetes-cost-optimization-guide">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="From Free Tier to Production: A Guide to Kubernetes Cost Optimization">
+<meta property="og:description" content="Where Kubernetes cloud spend actually goes, and the manifest-level changes that move the cost needle most, from early-stage to production scale.">
+<meta property="og:url" content="https://cubzi.cloud/blog/kubernetes-cost-optimization-guide">
+<style>
+:root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+a{color:var(--info)}
+.wrap{max-width:720px;margin:0 auto;padding:0 1.5rem}
+nav{border-bottom:1px solid var(--border);padding:1rem 0}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;max-width:900px}
+.logo{font-weight:700;font-size:1.15rem;text-decoration:none;color:var(--text)}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:.88rem;margin-left:1.1rem}
+.navlinks a:hover{color:var(--text)}
+article{padding:3rem 0 3rem}
+.crumb{font-size:.85rem;margin-bottom:1.5rem}
+.crumb a{color:var(--muted)}
+article h1{font-size:1.9rem;line-height:1.25;margin:0 0 .6rem;letter-spacing:-.01em}
+.meta{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+article h2{font-size:1.25rem;margin:2.2rem 0 .75rem;letter-spacing:-.01em}
+article h3{font-size:1.02rem;margin:1.5rem 0 .5rem}
+article p{margin:0 0 1rem}
+article ul,article ol{margin:0 0 1rem;padding-left:1.4rem}
+article li{margin-bottom:.4rem}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--panel-2);border:1px solid var(--border);border-radius:4px;padding:.1rem .35rem;font-size:.88em}
+pre{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;overflow-x:auto;font-size:.85rem}
+pre code{background:none;border:none;padding:0}
+.callout{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;font-size:.92rem;color:var(--muted)}
+.cta{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-top:2.5rem;text-align:center}
+.cta a{display:inline-block;margin-top:.75rem;background:var(--accent);color:#04170a;padding:.65rem 1.3rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem}
+.related{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.related h2{margin-top:0}
+.related ul{list-style:none;padding:0}
+.related li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1rem 0}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted)}
+footer{border-top:1px solid var(--border);padding:2rem 0;color:var(--muted);font-size:.82rem}
+footer .wrap{max-width:900px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+footer a{color:var(--muted)}
+.whatsapp-fab{position:fixed;right:1.25rem;bottom:1.25rem;z-index:20;width:3.25rem;height:3.25rem;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);text-decoration:none}
+.whatsapp-fab svg{width:1.6rem;height:1.6rem}
+@media(max-width:640px){.navlinks{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/">Cubzi</a>
+    <div class="navlinks">
+      <a href="/blog">Blog</a>
+      <a href="/docs">API docs</a>
+      <a href="/login">Open the tool</a>
+    </div>
+  </div>
+</nav>
+
+<article class="wrap">
+  <div class="crumb"><a href="/blog">← Blog</a></div>
+  <h1>From Free Tier to Production: A Guide to Kubernetes Cost Optimization</h1>
+  <p class="meta">Cost &middot; 7 min read</p>
+
+  <p>Kubernetes cost optimization advice tends to jump straight to cluster-level tooling — autoscalers, spot instance strategies, bin-packing schedulers. All genuinely useful, and all downstream of a much simpler starting point: most Kubernetes overspend traces back to individual manifests requesting more than they need, or being sized once early on and never revisited.</p>
+
+  <h2>Start with requests, not infrastructure</h2>
+  <p>Before touching cluster autoscaling policy, look at what your existing workloads actually request versus what they use. It's extremely common to find services requesting 1 full CPU "to be safe" that use a tenth of that in practice — every one of those is directly inflating both the node count the cluster needs and the estimated monthly cost of that workload. Right-sizing requests based on observed usage (with reasonable headroom, not a guess) is almost always the highest-leverage first move.</p>
+
+  <h2>Replica count is a multiplier, not a fixed cost</h2>
+  <p>A workload's cost scales linearly with replica count, which makes replica count one of the more consequential decisions in a manifest — and one that's often set once, early, and never reconsidered as traffic patterns become clearer. A service that genuinely needs 5 replicas at peak but runs at 5 replicas around the clock is paying peak price permanently; a HorizontalPodAutoscaler that scales between a lower floor and that same ceiling captures the same peak capacity without the constant cost.</p>
+
+  <h2>Storage adds up quietly</h2>
+  <p>PersistentVolumeClaims are easy to forget about because they don't show up in the same "is this pod using too much CPU" conversations — but storage cost accrues independent of whether the workload using it is even running, and orphaned PVCs (left behind after a Deployment is deleted, if the PVC wasn't part of the same cleanup) are a common source of cost that nobody's actively watching.</p>
+
+  <h2>Catch drift before it compounds</h2>
+  <p>The pattern behind most Kubernetes cost surprises isn't a single bad decision — it's a series of individually small ones (a memory bump here, an extra replica there) that never got reviewed with cost in view, because nothing surfaced the cost impact at the time the change was made. This is the specific gap a pre-deploy cost estimate closes: showing the monthly delta in the same pull request that changes the resource requests, so "this PR adds roughly $12/month" is something a reviewer sees, not something finance notices two months later.</p>
+
+  <h2>A reasonable cadence</h2>
+  <p>You don't need continuous cost monitoring to get most of the benefit. A quarterly pass — checking every workload's requests against actual usage, reviewing replica counts against real traffic, and auditing for orphaned PVCs — combined with cost estimation on every PR that changes resource fields, catches the overwhelming majority of avoidable Kubernetes spend without needing dedicated FinOps tooling.</p>
+
+  <div class="cta">
+    <p>Check your own manifests against these rules in seconds — free.</p>
+    <a href="/login">Check a manifest free →</a>
+  </div>
+
+  <div class="related">
+    <h2>Related</h2>
+    <ul>
+      <li><a href="/blog/how-much-does-kubernetes-deployment-cost">How Much Does Your Kubernetes Deployment Actually Cost?</a></li>
+      <li><a href="/blog/cost-of-missing-resource-limits">The Hidden Cost of Missing Resource Requests and Limits</a></li>
+      <li><a href="/blog/aws-vs-gcp-vs-azure-kubernetes-pricing">Kubernetes Cost Estimation: AWS vs GCP vs Azure Pricing Compared</a></li>
+    </ul>
+  </div>
+</article>
+
+<footer>
+  <div class="wrap">
+    <p>Cubzi — pre-deploy Kubernetes linting + cost estimation.</p>
+    <div><a href="/">Home</a> &middot; <a href="/docs">API docs</a> &middot; <a href="/login">Open the tool</a></div>
+  </div>
+</footer>
+
+<a class="whatsapp-fab" href="https://wa.me/447346473123" target="_blank" rel="noopener" aria-label="Chat with support on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.1c-.24.68-1.4 1.3-1.93 1.35-.53.06-1.03.27-3.44-.72-2.9-1.19-4.76-4.15-4.9-4.34-.14-.19-1.17-1.56-1.17-2.98s.74-2.11 1-2.4c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.14.07.15.12.32.02.51-.1.19-.15.3-.29.47-.15.17-.31.37-.44.5-.15.15-.3.31-.13.6.17.29.76 1.26 1.64 2.04 1.13 1 2.08 1.32 2.37 1.47.29.15.46.12.63-.07.17-.19.72-.84.92-1.13.19-.29.38-.24.64-.14.26.1 1.66.78 1.94.93.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+</a>
+
+</body>
+</html>

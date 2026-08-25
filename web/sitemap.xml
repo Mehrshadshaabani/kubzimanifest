@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://cubzi.cloud/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://cubzi.cloud/login</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/docs</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://cubzi.cloud/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://cubzi.cloud/blog/kubernetes-manifest-security-checklist</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/how-much-does-kubernetes-deployment-cost</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/why-pods-should-not-run-as-root</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/cost-of-missing-resource-limits</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/kubernetes-networkpolicy-explained</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/poddisruptionbudget-explained</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/aws-vs-gcp-vs-azure-kubernetes-pricing</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/kubernetes-linting-in-github-actions-ci</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/common-kubernetes-misconfigurations</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/kubernetes-cost-optimization-guide</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>

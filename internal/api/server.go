@@ -7,6 +7,7 @@ package api
 import (
 	"net/http"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -73,6 +74,10 @@ func (s *Server) Router() http.Handler {
 		r.Get("/app/", s.serveWebFile("index.html"))
 		r.Get("/login", s.serveWebFile("login.html"))
 		r.Get("/docs", s.serveWebFile("docs.html"))
+		r.Get("/blog", s.serveWebFile("blog.html"))
+		r.Get("/blog/{slug}", s.serveBlogPost)
+		r.Get("/robots.txt", s.serveWebFile("robots.txt"))
+		r.Get("/sitemap.xml", s.serveWebFile("sitemap.xml"))
 	}
 
 	return r
@@ -83,4 +88,18 @@ func (s *Server) serveWebFile(name string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, path)
 	}
+}
+
+// blogSlugPattern only allows lowercase letters, digits, and hyphens — the
+// slug feeds directly into a filesystem path, so this also rules out "..",
+// "/", and anything else that could escape web/blog/.
+var blogSlugPattern = regexp.MustCompile(`^[a-z0-9-]+$`)
+
+func (s *Server) serveBlogPost(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+	if !blogSlugPattern.MatchString(slug) {
+		http.NotFound(w, r)
+		return
+	}
+	http.ServeFile(w, r, filepath.Join(s.WebDir, "blog", slug+".html"))
 }

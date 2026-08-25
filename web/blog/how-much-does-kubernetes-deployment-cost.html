@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Much Does Your Kubernetes Deployment Actually Cost? — Cubzi</title>
+<meta name="description" content="A practical guide to estimating Kubernetes cloud cost from CPU/memory requests and replica counts, before you ever deploy a pod.">
+<link rel="canonical" href="https://cubzi.cloud/blog/how-much-does-kubernetes-deployment-cost">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How Much Does Your Kubernetes Deployment Actually Cost?">
+<meta property="og:description" content="A practical guide to estimating cloud spend from resource requests, before a single pod is scheduled.">
+<meta property="og:url" content="https://cubzi.cloud/blog/how-much-does-kubernetes-deployment-cost">
+<style>
+:root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+a{color:var(--info)}
+.wrap{max-width:720px;margin:0 auto;padding:0 1.5rem}
+nav{border-bottom:1px solid var(--border);padding:1rem 0}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;max-width:900px}
+.logo{font-weight:700;font-size:1.15rem;text-decoration:none;color:var(--text)}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:.88rem;margin-left:1.1rem}
+.navlinks a:hover{color:var(--text)}
+article{padding:3rem 0 3rem}
+.crumb{font-size:.85rem;margin-bottom:1.5rem}
+.crumb a{color:var(--muted)}
+article h1{font-size:1.9rem;line-height:1.25;margin:0 0 .6rem;letter-spacing:-.01em}
+.meta{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+article h2{font-size:1.25rem;margin:2.2rem 0 .75rem;letter-spacing:-.01em}
+article h3{font-size:1.02rem;margin:1.5rem 0 .5rem}
+article p{margin:0 0 1rem}
+article ul,article ol{margin:0 0 1rem;padding-left:1.4rem}
+article li{margin-bottom:.4rem}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--panel-2);border:1px solid var(--border);border-radius:4px;padding:.1rem .35rem;font-size:.88em}
+pre{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;overflow-x:auto;font-size:.85rem}
+pre code{background:none;border:none;padding:0}
+.callout{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;font-size:.92rem;color:var(--muted)}
+.cta{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-top:2.5rem;text-align:center}
+.cta a{display:inline-block;margin-top:.75rem;background:var(--accent);color:#04170a;padding:.65rem 1.3rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem}
+.related{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.related h2{margin-top:0}
+.related ul{list-style:none;padding:0}
+.related li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1rem 0}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted)}
+footer{border-top:1px solid var(--border);padding:2rem 0;color:var(--muted);font-size:.82rem}
+footer .wrap{max-width:900px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+footer a{color:var(--muted)}
+.whatsapp-fab{position:fixed;right:1.25rem;bottom:1.25rem;z-index:20;width:3.25rem;height:3.25rem;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);text-decoration:none}
+.whatsapp-fab svg{width:1.6rem;height:1.6rem}
+@media(max-width:640px){.navlinks{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/">Cubzi</a>
+    <div class="navlinks">
+      <a href="/blog">Blog</a>
+      <a href="/docs">API docs</a>
+      <a href="/login">Open the tool</a>
+    </div>
+  </div>
+</nav>
+
+<article class="wrap">
+  <div class="crumb"><a href="/blog">← Blog</a></div>
+  <h1>How Much Does Your Kubernetes Deployment Actually Cost?</h1>
+  <p class="meta">Cost &middot; 7 min read</p>
+
+  <p>Ask most teams what a given Deployment costs per month and you'll get a shrug, or a link to last month's total cloud bill with no way to break it down by workload. Kubernetes doesn't bill you directly — the cloud provider bills for the nodes underneath it — so the connection between "this YAML file" and "this many dollars a month" is one most teams never actually calculate until the bill is a surprise.</p>
+
+  <p>It's a calculable number, though, and you don't need a running cluster to get a reasonable estimate. Here's what actually drives Kubernetes cost, and how to estimate it from a manifest alone.</p>
+
+  <h2>What actually costs money</h2>
+  <p>A pod itself has no price. What you're paying for is the compute (and storage) it reserves on a node — and the number that matters isn't what the container actually uses at runtime, it's what it <em>requests</em>, because that's what the scheduler reserves and what determines how many nodes you need.</p>
+  <ul>
+    <li><strong>CPU and memory requests</strong> — <code>resources.requests.cpu</code> and <code>resources.requests.memory</code>, multiplied by replica count, is the core of the calculation.</li>
+    <li><strong>Persistent storage</strong> — a <code>PersistentVolumeClaim</code>'s requested size, priced per GB/month against the relevant storage class.</li>
+    <li><strong>Replica count</strong> — a Deployment with <code>replicas: 3</code> costs three times what the same pod spec costs at <code>replicas: 1</code>.</li>
+  </ul>
+
+  <h2>Why "no requests set" means "no cost estimate"</h2>
+  <p>If a container doesn't set <code>resources.requests</code>, there's genuinely nothing to estimate from — the scheduler treats it as effectively weightless for bin-packing purposes, which in practice means it can consume node capacity unpredictably. This is one of Cubzi's own warning rules (missing resource requests/limits), and it's not a coincidence that it's also the single most common reason a cost estimate comes back at $0: the manifest simply hasn't specified what it needs.</p>
+
+  <h2>A worked example</h2>
+  <p>Take a Deployment with 3 replicas, each requesting 500m CPU and 512Mi memory, plus a 20Gi PVC on a standard storage class. On AWS, that's roughly equivalent to reserving 1.5 vCPU and 1.5Gi of memory across the fleet, priced against blended on-demand compute rates, plus the PVC's per-GB monthly storage rate. Multiply, add, and you have a monthly range — not a guaranteed bill (actual node packing, spot pricing, and discounts all shift the real number), but a useful one for comparing "should this be 3 replicas or 2" before you apply the YAML.</p>
+
+  <div class="callout">Cubzi's cost estimator does exactly this calculation automatically against AWS, GCP, or Azure list pricing, and shows the methodology behind every number — because cloud providers don't sell vCPU and memory separately, so any per-resource rate is necessarily a documented approximation, not an official price.</div>
+
+  <h2>Why estimate before deploying, not after</h2>
+  <p>Cost tools that parse Terraform or connect to a running cluster tell you what you're already paying. That's useful for a monthly review, but it's too late to change a decision that's already in production. Estimating from the manifest itself — in a PR, before merge — turns "why is our bill up 30% this month" into a number a reviewer sees before they approve the change.</p>
+
+  <div class="cta">
+    <p>Paste a manifest and get a cost range in seconds — free, no cluster required.</p>
+    <a href="/login">Check a manifest free →</a>
+  </div>
+
+  <div class="related">
+    <h2>Related</h2>
+    <ul>
+      <li><a href="/blog/cost-of-missing-resource-limits">The Hidden Cost of Missing Resource Requests and Limits</a></li>
+      <li><a href="/blog/aws-vs-gcp-vs-azure-kubernetes-pricing">Kubernetes Cost Estimation: AWS vs GCP vs Azure Pricing Compared</a></li>
+      <li><a href="/blog/kubernetes-cost-optimization-guide">From Free Tier to Production: A Guide to Kubernetes Cost Optimization</a></li>
+    </ul>
+  </div>
+</article>
+
+<footer>
+  <div class="wrap">
+    <p>Cubzi — pre-deploy Kubernetes linting + cost estimation.</p>
+    <div><a href="/">Home</a> &middot; <a href="/docs">API docs</a> &middot; <a href="/login">Open the tool</a></div>
+  </div>
+</footer>
+
+<a class="whatsapp-fab" href="https://wa.me/447346473123" target="_blank" rel="noopener" aria-label="Chat with support on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.1c-.24.68-1.4 1.3-1.93 1.35-.53.06-1.03.27-3.44-.72-2.9-1.19-4.76-4.15-4.9-4.34-.14-.19-1.17-1.56-1.17-2.98s.74-2.11 1-2.4c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.14.07.15.12.32.02.51-.1.19-.15.3-.29.47-.15.17-.31.37-.44.5-.15.15-.3.31-.13.6.17.29.76 1.26 1.64 2.04 1.13 1 2.08 1.32 2.37 1.47.29.15.46.12.63-.07.17-.19.72-.84.92-1.13.19-.29.38-.24.64-.14.26.1 1.66.78 1.94.93.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+</a>
+
+</body>
+</html>
