@@ -194,6 +194,8 @@ normal (non-Iran) egress.
 
 ## GitHub Action
 
+Also on the [GitHub Marketplace](https://github.com/marketplace/actions/cubzi-kubernetes-lint).
+
 ```yaml
 - uses: Mehrshadshaabani/kubzimanifest@v1
   with:
