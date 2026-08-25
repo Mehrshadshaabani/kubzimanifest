@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -15,6 +16,7 @@ func (s *Server) handleGetPlan(w http.ResponseWriter, r *http.Request) {
 	userID, _ := userIDFromContext(r.Context())
 	sub, err := s.Store.GetSubscription(r.Context(), userID)
 	if err != nil {
+		log.Printf("handleGetPlan: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
@@ -47,11 +49,13 @@ func (s *Server) handleCheckout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
+		log.Printf("handleCheckout: %s.CreateCheckout: %v", s.Billing.Name(), err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
 	if _, err := s.Store.CreateCheckoutSession(r.Context(), userID, string(plan), s.Billing.Name(), checkout.OrderID); err != nil {
+		log.Printf("handleCheckout: CreateCheckoutSession: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
@@ -90,6 +94,7 @@ func (s *Server) handleCoinGateWebhook(w http.ResponseWriter, r *http.Request) {
 func (s *Server) finishWebhook(w http.ResponseWriter, r *http.Request, body []byte, signature string) {
 	orderID, paid, err := s.Billing.HandleWebhook(r.Context(), body, signature)
 	if err != nil {
+		log.Printf("finishWebhook: %s.HandleWebhook: %v", s.Billing.Name(), err)
 		http.Error(w, "invalid webhook", http.StatusBadRequest)
 		return
 	}
@@ -113,6 +118,7 @@ func (s *Server) finishWebhook(w http.ResponseWriter, r *http.Request, body []by
 			CurrentPeriodEnd: &periodEnd,
 		}
 		if err := s.Store.UpsertSubscription(r.Context(), sub); err != nil {
+			log.Printf("finishWebhook: UpsertSubscription: %v", err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
