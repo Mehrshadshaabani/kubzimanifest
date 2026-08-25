@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: Mehrshadshaabani/kubzimanifest@v1
+      - uses: Mehrshadshaabani/kubzimanifest@test-action-pr-comment
         with:
           path: ./testdata/manifests
           cloud: aws

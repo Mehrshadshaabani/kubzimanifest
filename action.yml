@@ -38,11 +38,15 @@ runs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.22'
+        go-version-file: '${{ github.action_path }}/go.mod'
 
     - name: Build mflint
       shell: bash
-      run: go build -o /tmp/mflint-bin "${{ github.action_path }}/cmd/mflint"
+      # cwd here is the *caller's* checked-out repo (GITHUB_WORKSPACE), not
+      # this action's own checkout — cd into github.action_path first, or
+      # `go build` resolves cmd/mflint against the caller's go.mod (if any)
+      # and fails with "outside main module or its selected dependencies".
+      run: cd "${{ github.action_path }}" && go build -o /tmp/mflint-bin ./cmd/mflint
 
     - name: Run mflint
       id: lint
