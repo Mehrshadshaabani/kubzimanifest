@@ -1,5 +1,8 @@
-name: 'mflint'
+name: 'Cubzi Kubernetes Lint'
 description: 'Lint Kubernetes manifests for security/reliability issues and estimate monthly cloud cost'
+branding:
+  icon: 'shield'
+  color: 'green'
 inputs:
   path:
     description: 'Path to a manifest file or directory'
@@ -18,7 +21,7 @@ inputs:
     required: false
     default: ${{ github.token }}
   api-key:
-    description: 'mflint API key (generate one at <api-base>/app -> API keys). Without it, runs are anonymous and IP rate-limited, which can fail on shared CI runners.'
+    description: 'Cubzi API key (generate one at <api-base>/app -> API keys). Without it, runs are anonymous and IP rate-limited, which can fail on shared CI runners.'
     required: false
     default: ''
   api-base:
