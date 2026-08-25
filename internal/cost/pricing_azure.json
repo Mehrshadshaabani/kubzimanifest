@@ -1,0 +1,15 @@
+{
+  "cloud": "azure",
+  "asOf": "2026-08-24",
+  "currency": "USD",
+  "computePricePerVCPUHour": 0.0346,
+  "computePricePerGiBMemoryHour": 0.00336,
+  "hoursPerMonth": 730,
+  "methodology": "Derived from Azure Standard_D4s_v5 on-demand list price (East US, 4 vCPU / 16 GiB, $0.192/hr), split 72% compute / 28% memory — the ratio solved empirically from AWS instance pricing (see pricing_aws.json). Azure does not sell vCPU/memory separately for VMs, so this split is an approximation.",
+  "storagePerGBMonth": {
+    "default": 0.075,
+    "Standard_LRS": 0.046,
+    "StandardSSD_LRS": 0.075,
+    "Premium_LRS": 0.154
+  }
+}

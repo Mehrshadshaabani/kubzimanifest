@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mflint — Check a manifest</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #0b0f14;
+    --panel: #121821;
+    --border: #232b36;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --critical: #f85149;
+    --warning: #d29922;
+    --info: #58a6ff;
+    --accent: #3fb950;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  a { color: var(--info); }
+  header {
+    padding: 1.5rem 2rem 0.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  header h1 { font-size: 1.4rem; margin: 0 0 0.25rem; }
+  header h1 a { color: var(--text); text-decoration: none; }
+  header p { color: var(--muted); margin: 0; font-size: 0.9rem; }
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem 2rem 3rem;
+    display: grid;
+    gap: 1rem;
+  }
+  textarea {
+    width: 100%;
+    min-height: 320px;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    resize: vertical;
+  }
+  .controls { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+  select, button, input[type="text"] {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.9rem;
+  }
+  button { cursor: pointer; background: var(--accent); border-color: var(--accent); color: #04170a; font-weight: 600; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button.btn-secondary, a.btn-secondary { background: var(--panel); border-color: var(--border); color: var(--text); font-weight: 500; border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.9rem; font-size: 0.9rem; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .muted { color: var(--muted); font-size: 0.85rem; }
+  #results { display: none; gap: 1rem; }
+  .summary { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .pill {
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .pill.critical { color: var(--critical); border-color: var(--critical); }
+  .pill.warning { color: var(--warning); border-color: var(--warning); }
+  .pill.info { color: var(--info); border-color: var(--info); }
+  .pill.plan { color: var(--accent); border-color: var(--accent); text-transform: uppercase; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .sev { font-weight: 700; }
+  .sev.critical { color: var(--critical); }
+  .sev.warning { color: var(--warning); }
+  .sev.info { color: var(--info); }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+  .disclaimer { color: var(--muted); font-size: 0.8rem; margin-top: 0.5rem; }
+  #error { display: none; color: var(--critical); }
+  #authbar { font-size: 0.85rem; }
+  #saveRow label { display: flex; align-items: center; gap: 0.4rem; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1><a href="/">mflint</a></h1>
+    <p>Paste a Kubernetes manifest to check it against security/reliability rules and estimate monthly cloud cost. Nothing is stored unless you sign in.</p>
+  </div>
+  <div id="authbar">
+    <div id="authAnon" class="controls">
+      <a class="btn-secondary" href="/login" style="text-decoration:none; display:inline-block;">Sign in</a>
+    </div>
+    <div id="authUser" class="controls" style="display:none">
+      <span id="planBadge" class="pill plan"></span>
+      <span id="usageText" class="muted"></span>
+      <button class="btn-secondary" id="upgradeTeamBtn">Upgrade to Team</button>
+      <button class="btn-secondary" id="upgradeProBtn">Upgrade to Pro</button>
+      <button class="btn-secondary" id="apiKeysBtn">API keys</button>
+      <button class="btn-secondary" id="signoutBtn">Sign out</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="panel" id="apiKeysPanel" style="display:none">
+    <h3 style="margin:0 0 0.25rem;font-size:0.95rem;">API keys</h3>
+    <p class="muted" style="margin:0 0 0.9rem;">Use a key to call the API from scripts or CI. Counts against the same monthly quota as the web tool. See the <a href="/docs">API docs</a>.</p>
+    <div id="apiKeysList" class="muted">Loading…</div>
+    <div class="controls" style="margin-top:0.9rem;">
+      <input type="text" id="newKeyLabel" placeholder="label (e.g. ci)">
+      <button class="btn-secondary" id="createKeyBtn">Generate new key</button>
+    </div>
+    <div class="panel" id="newKeyReveal" style="display:none;margin-top:0.9rem;background:var(--bg);">
+      <p class="muted" style="margin:0 0 0.4rem;">Copy this now — it won't be shown again:</p>
+      <code id="newKeyValue" class="mono" style="word-break:break-all;"></code>
+    </div>
+  </div>
+  <textarea id="manifest" placeholder="apiVersion: apps/v1&#10;kind: Deployment&#10;...">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: web
+          image: nginx
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+</textarea>
+  <div class="controls">
+    <label class="muted" for="cloud">Cost estimate for</label>
+    <select id="cloud">
+      <option value="aws">AWS</option>
+      <option value="gcp">GCP</option>
+      <option value="azure">Azure</option>
+    </select>
+    <button id="run">Run check</button>
+    <span id="status" class="muted"></span>
+  </div>
+  <div class="controls" id="saveRow" style="display:none">
+    <label class="muted"><input type="checkbox" id="saveCheckbox"> Save this report to my account</label>
+  </div>
+  <div id="error" class="panel"></div>
+  <div id="results">
+    <div class="summary" id="summary"></div>
+    <div class="panel">
+      <table id="violations">
+        <thead><tr><th>Severity</th><th>Rule</th><th>Resource</th><th>Message</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <table id="cost">
+        <thead><tr><th>Resource</th><th>Replicas</th><th>Low</th><th>High</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="disclaimer" id="costDisclaimer"></p>
+    </div>
+  </div>
+</main>
+<script>
+const runBtn = document.getElementById('run');
+const statusEl = document.getElementById('status');
+const errorEl = document.getElementById('error');
+const resultsEl = document.getElementById('results');
+const summaryEl = document.getElementById('summary');
+const violationsBody = document.querySelector('#violations tbody');
+const costBody = document.querySelector('#cost tbody');
+const costDisclaimer = document.getElementById('costDisclaimer');
+
+const authAnon = document.getElementById('authAnon');
+const authUser = document.getElementById('authUser');
+const signoutBtn = document.getElementById('signoutBtn');
+const planBadge = document.getElementById('planBadge');
+const usageText = document.getElementById('usageText');
+const upgradeTeamBtn = document.getElementById('upgradeTeamBtn');
+const upgradeProBtn = document.getElementById('upgradeProBtn');
+const saveRow = document.getElementById('saveRow');
+const saveCheckbox = document.getElementById('saveCheckbox');
+
+const apiKeysBtn = document.getElementById('apiKeysBtn');
+const apiKeysPanel = document.getElementById('apiKeysPanel');
+const apiKeysList = document.getElementById('apiKeysList');
+const newKeyLabel = document.getElementById('newKeyLabel');
+const createKeyBtn = document.getElementById('createKeyBtn');
+const newKeyReveal = document.getElementById('newKeyReveal');
+const newKeyValue = document.getElementById('newKeyValue');
+
+const TOKEN_KEY = 'mflint_token';
+const getToken = () => localStorage.getItem(TOKEN_KEY);
+const setToken = (t) => localStorage.setItem(TOKEN_KEY, t);
+const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+
+async function refreshAuthUI() {
+  const token = getToken();
+  if (!token) {
+    authAnon.style.display = 'flex';
+    authUser.style.display = 'none';
+    saveRow.style.display = 'none';
+    apiKeysPanel.style.display = 'none';
+    newKeyReveal.style.display = 'none';
+    return;
+  }
+  try {
+    const [planRes, usageRes] = await Promise.all([
+      fetch('/v1/billing/plan', { headers: { Authorization: 'Bearer ' + token } }),
+      fetch('/v1/usage', { headers: { Authorization: 'Bearer ' + token } }),
+    ]);
+    if (planRes.status === 401 || usageRes.status === 401) {
+      clearToken();
+      return refreshAuthUI();
+    }
+    const plan = await planRes.json();
+    const usage = await usageRes.json();
+
+    planBadge.textContent = plan.plan;
+    usageText.textContent = usage.limit > 0
+      ? `${usage.used}/${usage.limit} checks this month`
+      : `${usage.used} checks this month (unlimited)`;
+    upgradeTeamBtn.style.display = plan.plan === 'free' ? 'inline-block' : 'none';
+    upgradeProBtn.style.display = plan.plan !== 'pro' ? 'inline-block' : 'none';
+
+    authAnon.style.display = 'none';
+    authUser.style.display = 'flex';
+    saveRow.style.display = 'flex';
+  } catch (err) {
+    // Network error refreshing status; leave current UI state as-is.
+  }
+}
+
+async function upgrade(plan) {
+  const token = getToken();
+  if (!token) return;
+  errorEl.style.display = 'none';
+  try {
+    const res = await fetch('/v1/billing/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ plan }),
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(text || ('HTTP ' + res.status));
+    const checkout = JSON.parse(text);
+    if (checkout.URL || checkout.url) {
+      window.location.href = checkout.URL || checkout.url;
+    }
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.style.display = 'block';
+  }
+}
+
+signoutBtn.addEventListener('click', () => { clearToken(); refreshAuthUI(); });
+upgradeTeamBtn.addEventListener('click', () => upgrade('team'));
+upgradeProBtn.addEventListener('click', () => upgrade('pro'));
+
+apiKeysBtn.addEventListener('click', async () => {
+  const showing = apiKeysPanel.style.display !== 'none';
+  apiKeysPanel.style.display = showing ? 'none' : 'block';
+  if (!showing) await loadAPIKeys();
+});
+
+async function loadAPIKeys() {
+  const token = getToken();
+  apiKeysList.textContent = 'Loading…';
+  try {
+    const res = await fetch('/v1/api-keys', { headers: { Authorization: 'Bearer ' + token } });
+    const keys = await res.json();
+    if (!res.ok) throw new Error('failed to load');
+    if (!keys.length) {
+      apiKeysList.textContent = 'No API keys yet.';
+      return;
+    }
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr><th>Label</th><th>Created</th><th>Last used</th><th></th></tr></thead>';
+    const tbody = document.createElement('tbody');
+    for (const k of keys) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHTML(k.label)}</td>
+        <td class="muted">${new Date(k.createdAt).toLocaleDateString()}</td>
+        <td class="muted">${k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : 'never'}</td>
+        <td><button class="btn-secondary" data-revoke="${k.id}">Revoke</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    apiKeysList.innerHTML = '';
+    apiKeysList.appendChild(table);
+    apiKeysList.querySelectorAll('[data-revoke]').forEach((btn) => {
+      btn.addEventListener('click', () => revokeAPIKey(btn.dataset.revoke));
+    });
+  } catch (err) {
+    apiKeysList.textContent = 'Could not load API keys.';
+  }
+}
+
+async function revokeAPIKey(id) {
+  const token = getToken();
+  await fetch('/v1/api-keys/' + id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
+  await loadAPIKeys();
+}
+
+createKeyBtn.addEventListener('click', async () => {
+  const token = getToken();
+  const label = newKeyLabel.value.trim() || 'default';
+  try {
+    const res = await fetch('/v1/api-keys', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ label }),
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(text || ('HTTP ' + res.status));
+    const created = JSON.parse(text);
+    newKeyValue.textContent = created.key;
+    newKeyReveal.style.display = 'block';
+    newKeyLabel.value = '';
+    await loadAPIKeys();
+  } catch (err) {
+    apiKeysList.textContent = 'Could not create API key: ' + err.message;
+  }
+});
+
+async function runLint() {
+  const manifest = document.getElementById('manifest').value;
+  const cloud = document.getElementById('cloud').value;
+  const token = getToken();
+  errorEl.style.display = 'none';
+  resultsEl.style.display = 'none';
+  runBtn.disabled = true;
+  statusEl.textContent = 'Checking...';
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    const res = await fetch('/v1/lint', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ manifest, cloud, save: !!(token && saveCheckbox.checked) }),
+    });
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(text || ('HTTP ' + res.status));
+    }
+    render(JSON.parse(text));
+    statusEl.textContent = '';
+    if (token) refreshAuthUI(); // usage count just changed
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.style.display = 'block';
+    statusEl.textContent = '';
+  } finally {
+    runBtn.disabled = false;
+  }
+}
+
+function render(report) {
+  summaryEl.innerHTML = `
+    <span class="pill critical">${report.criticalCount} critical</span>
+    <span class="pill warning">${report.warningCount} warning</span>
+    <span class="pill info">${report.infoCount} info</span>
+  `;
+
+  violationsBody.innerHTML = '';
+  for (const v of report.violations) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="sev ${v.severity}">${v.severity.toUpperCase()}</td>
+      <td>${v.ruleId}</td>
+      <td>${v.resource.kind}/${v.resource.name}<br><span class="muted">${v.resource.namespace || 'default'}</span></td>
+      <td>${escapeHTML(v.message)}<br><span class="muted">${escapeHTML(v.suggestion)}</span></td>
+    `;
+    violationsBody.appendChild(tr);
+  }
+  if (report.violations.length === 0) {
+    violationsBody.innerHTML = '<tr><td colspan="4" class="muted">No violations found.</td></tr>';
+  }
+
+  costBody.innerHTML = '';
+  costDisclaimer.textContent = '';
+  if (report.cost) {
+    for (const w of (report.cost.workloads || [])) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${w.resource.kind}/${w.resource.name}</td>
+        <td>${w.replicas}</td>
+        <td>$${w.monthlyLowUsd.toFixed(2)}</td>
+        <td>$${w.monthlyHighUsd.toFixed(2)}${w.note ? ' <span class="muted">(' + escapeHTML(w.note) + ')</span>' : ''}</td>
+      `;
+      costBody.appendChild(tr);
+    }
+    for (const s of (report.cost.storage || [])) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${s.resource.kind}/${s.resource.name} <span class="muted">(${s.sizeGb}GB, ${s.storageClass || 'default'})</span></td>
+        <td>-</td>
+        <td>$${s.monthlyLowUsd.toFixed(2)}</td>
+        <td>$${s.monthlyHighUsd.toFixed(2)}</td>
+      `;
+      costBody.appendChild(tr);
+    }
+    costDisclaimer.textContent = `Estimated using ${report.cost.cloud.toUpperCase()} list prices as of ${report.cost.pricingAsOf}. ` +
+      `Total: $${report.cost.totalMonthlyLowUsd.toFixed(2)} – $${report.cost.totalMonthlyHighUsd.toFixed(2)} / month. ` +
+      `This is a list-price estimate, not a guaranteed bill.` +
+      (report.cost.methodology ? ` ${report.cost.methodology}` : '');
+  }
+
+  resultsEl.style.display = 'grid';
+}
+
+function escapeHTML(s) {
+  const div = document.createElement('div');
+  div.textContent = s || '';
+  return div.innerHTML;
+}
+
+runBtn.addEventListener('click', runLint);
+
+// The OAuth callback (see internal/api/oauth.go) redirects here with
+// ?token=<jwt> after a successful sign-in. Store it and scrub it from the
+// URL immediately so it doesn't linger in browser history.
+const seedToken = new URLSearchParams(location.search).get('token');
+if (seedToken) {
+  setToken(seedToken);
+  const url = new URL(location.href);
+  url.searchParams.delete('token');
+  history.replaceState(null, '', url.pathname + url.search);
+}
+
+refreshAuthUI();
+
+if (new URLSearchParams(location.search).get('autorun') === '1') {
+  runLint();
+}
+</script>
+</body>
+</html>

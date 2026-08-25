@@ -1,0 +1,17 @@
+{
+  "cloud": "aws",
+  "asOf": "2026-08-24",
+  "currency": "USD",
+  "computePricePerVCPUHour": 0.0357,
+  "computePricePerGiBMemoryHour": 0.0034,
+  "hoursPerMonth": 730,
+  "methodology": "Solved from two AWS EC2 on-demand list prices (us-east-1) with different vCPU:memory ratios: c6i.large (2 vCPU / 4 GiB) at $0.085/hr and r6i.large (2 vCPU / 16 GiB) at $0.126/hr. Cross-checked against m6i.large (2 vCPU / 8 GiB, $0.096/hr actual vs ~$0.099/hr predicted by this rate) — within ~3%. AWS does not sell vCPU/memory separately for EC2, so this split is an approximation, not an official per-unit rate.",
+  "storagePerGBMonth": {
+    "default": 0.08,
+    "gp3": 0.08,
+    "gp2": 0.10,
+    "io2": 0.125,
+    "st1": 0.045,
+    "sc1": 0.025
+  }
+}

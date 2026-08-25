@@ -1,0 +1,15 @@
+{
+  "cloud": "gcp",
+  "asOf": "2026-08-24",
+  "currency": "USD",
+  "computePricePerVCPUHour": 0.0241,
+  "computePricePerGiBMemoryHour": 0.00235,
+  "hoursPerMonth": 730,
+  "methodology": "Derived from GCP e2-standard-4 on-demand list price (us-central1, 4 vCPU / 16 GB, $0.134/hr), split 72% compute / 28% memory — the ratio solved empirically from AWS instance pricing (see pricing_aws.json). GCP does not sell vCPU/memory separately for Compute Engine, so this split is an approximation.",
+  "storagePerGBMonth": {
+    "default": 0.10,
+    "pd-standard": 0.04,
+    "pd-balanced": 0.10,
+    "pd-ssd": 0.17
+  }
+}

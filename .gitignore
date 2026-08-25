@@ -1,0 +1,16 @@
+# Compiled binaries
+/mflint
+/mflint-server
+/mflint-cli
+*.exe
+
+# Go build/test artifacts
+*.test
+*.out
+
+# Local Claude Code session settings (machine-specific, not project config)
+.claude/
+
+# Editor/OS cruft
+.DS_Store
+*.swp

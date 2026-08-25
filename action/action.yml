@@ -1,0 +1,89 @@
+name: 'mflint'
+description: 'Lint Kubernetes manifests for security/reliability issues and estimate monthly cloud cost'
+inputs:
+  path:
+    description: 'Path to a manifest file or directory'
+    required: false
+    default: '.'
+  cloud:
+    description: 'Cloud to price against: aws, gcp, or azure'
+    required: false
+    default: 'aws'
+  comment:
+    description: 'Post/update a PR comment with the report'
+    required: false
+    default: 'true'
+  github-token:
+    description: 'Token used to post the PR comment'
+    required: false
+    default: ${{ github.token }}
+  api-key:
+    description: 'mflint API key (generate one at <api-base>/app -> API keys). Without it, runs are anonymous and IP rate-limited, which can fail on shared CI runners.'
+    required: false
+    default: ''
+  api-base:
+    description: 'mflint API base URL'
+    required: false
+    default: 'https://api.mflint.dev'
+outputs:
+  critical-count:
+    description: 'Number of CRITICAL violations found'
+    value: ${{ steps.lint.outputs.critical_count }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+
+    - name: Build mflint
+      shell: bash
+      run: go build -o /tmp/mflint-bin "${{ github.action_path }}/../cmd/mflint"
+
+    - name: Run mflint
+      id: lint
+      shell: bash
+      env:
+        MFLINT_API_KEY: ${{ inputs.api-key }}
+        MFLINT_API_BASE: ${{ inputs.api-base }}
+      run: |
+        set +e
+        /tmp/mflint-bin "${{ inputs.path }}" --format=table --cloud="${{ inputs.cloud }}" | tee /tmp/mflint-report.txt
+        exit_code=${PIPESTATUS[0]}
+        /tmp/mflint-bin "${{ inputs.path }}" --format=json --cloud="${{ inputs.cloud }}" > /tmp/mflint-report.json 2>/dev/null
+        critical=$(grep -o '"criticalCount": *[0-9]*' /tmp/mflint-report.json | grep -o '[0-9]*$' || echo 0)
+        echo "critical_count=$critical" >> "$GITHUB_OUTPUT"
+        echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+
+    - name: Comment on PR
+      if: inputs.comment == 'true' && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('/tmp/mflint-report.txt', 'utf8');
+          const marker = '<!-- mflint-report -->';
+          const body = marker + '\n### mflint report\n\n```\n' + report + '\n```';
+
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          const existing = comments.find(c => c.body && c.body.includes(marker));
+
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body,
+            });
+          }
+
+    - name: Fail if any CRITICAL violation was found
+      shell: bash
+      run: exit ${{ steps.lint.outputs.exit_code }}

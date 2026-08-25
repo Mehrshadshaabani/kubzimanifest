@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mflint — Sign in</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #0b0f14;
+    --panel: #121821;
+    --border: #232b36;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --accent: #3fb950;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .card {
+    width: 100%;
+    max-width: 360px;
+    padding: 2rem;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    text-align: center;
+  }
+  .logo { font-weight: 700; font-size: 1.2rem; text-decoration: none; color: var(--text); }
+  h1 { font-size: 1.1rem; margin: 1.25rem 0 0.4rem; }
+  p.lead { color: var(--muted); font-size: 0.88rem; margin: 0 0 1.75rem; }
+  .oauth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #0000;
+    color: var(--text);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+  }
+  .oauth-btn:hover { border-color: var(--muted); }
+  .oauth-btn svg { flex-shrink: 0; }
+  .oauth-btn.disabled { opacity: 0.45; pointer-events: none; }
+  .disabled-note { font-size: 0.72rem; color: var(--muted); margin: -0.4rem 0 0.75rem; }
+  .back { display: inline-block; margin-top: 1.5rem; font-size: 0.82rem; color: var(--muted); text-decoration: none; }
+  .back:hover { color: var(--text); }
+  #error { display: none; color: #f85149; font-size: 0.85rem; margin-top: 1rem; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <a class="logo" href="/">mflint</a>
+    <h1>Sign in or create an account</h1>
+    <p class="lead">One click — no password to set or remember.</p>
+
+    <a class="oauth-btn" id="googleBtn" href="/v1/auth/google/login">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.03z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.97L3.95 7.3C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+      Continue with Google
+    </a>
+
+    <a class="oauth-btn" id="githubBtn" href="/v1/auth/github/login">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      Continue with GitHub
+    </a>
+
+    <div id="error"></div>
+    <a class="back" href="/">← Back to mflint</a>
+  </div>
+
+<script>
+// If a provider isn't configured on this server, disable its button instead
+// of sending the user into a dead OAuth flow.
+async function checkProviders() {
+  try {
+    const res = await fetch('/v1/auth/providers');
+    if (!res.ok) return; // endpoint absent on older deployments; leave both enabled
+    const providers = await res.json();
+    if (!providers.google) disable('googleBtn');
+    if (!providers.github) disable('githubBtn');
+  } catch (err) {
+    // Network hiccup: leave buttons as-is rather than blocking sign-in.
+  }
+}
+function disable(id) {
+  const el = document.getElementById(id);
+  el.classList.add('disabled');
+  el.removeAttribute('href');
+  el.title = 'Not configured on this server yet';
+}
+checkProviders();
+
+const err = new URLSearchParams(location.search).get('error');
+if (err) {
+  const errorEl = document.getElementById('error');
+  errorEl.textContent = err;
+  errorEl.style.display = 'block';
+}
+</script>
+</body>
+</html>

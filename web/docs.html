@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mflint — API docs</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #0b0f14;
+    --panel: #121821;
+    --panel-2: #161d28;
+    --border: #232b36;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --accent: #3fb950;
+    --info: #58a6ff;
+    --critical: #f85149;
+    --warning: #d29922;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  a { color: var(--info); }
+  code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  .layout { display: grid; grid-template-columns: 230px 1fr; min-height: 100vh; }
+  aside {
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 1.25rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  aside .logo { font-weight: 700; font-size: 1.1rem; text-decoration: none; color: var(--text); display: block; margin-bottom: 1.5rem; }
+  aside nav a {
+    display: block;
+    padding: 0.35rem 0;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+  }
+  aside nav a:hover { color: var(--text); }
+  aside nav .group-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin: 1.1rem 0 0.3rem;
+  }
+  aside nav .group-label:first-child { margin-top: 0; }
+
+  main { padding: 2.5rem 3rem 5rem; max-width: 760px; }
+  section { margin-bottom: 3rem; scroll-margin-top: 1.5rem; }
+  h1 { font-size: 1.7rem; margin: 0 0 0.5rem; }
+  h2 { font-size: 1.3rem; margin: 0 0 0.6rem; border-top: 1px solid var(--border); padding-top: 2.5rem; }
+  section:first-of-type h2 { border-top: none; padding-top: 0; }
+  h3 { font-size: 1rem; margin: 1.5rem 0 0.5rem; }
+  p { color: var(--text); }
+  p.lead { color: var(--muted); font-size: 1.02rem; }
+  .muted { color: var(--muted); }
+
+  .endpoint {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 0.85rem; margin: 1.25rem 0 0.75rem;
+  }
+  .method {
+    font-weight: 700; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px;
+    background: var(--panel-2); border: 1px solid var(--border);
+  }
+  .method.post { color: var(--accent); border-color: var(--accent); }
+  .method.get { color: var(--info); border-color: var(--info); }
+  .method.delete { color: var(--critical); border-color: var(--critical); }
+  .auth-badge {
+    font-size: 0.72rem; color: var(--muted); border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+  }
+
+  pre {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-size: 0.82rem;
+    overflow-x: auto;
+    color: #c9d1d9;
+  }
+  code.inline {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.85em;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.87rem; margin: 0.75rem 0; }
+  th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+
+  .callout {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--info);
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin: 1rem 0;
+  }
+
+  @media (max-width: 820px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 2rem 1.25rem 4rem; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <a class="logo" href="/">mflint</a>
+    <nav>
+      <div class="group-label">Start here</div>
+      <a href="#getting-started">Getting started</a>
+      <a href="#how-to-read">How to use these docs</a>
+      <a href="#auth">Authentication</a>
+      <a href="#limits">Rate limits</a>
+      <a href="#errors">Errors</a>
+      <div class="group-label">Endpoints</div>
+      <a href="#lint">POST /v1/lint</a>
+      <a href="#usage">GET /v1/usage</a>
+      <a href="#plan">GET /v1/billing/plan</a>
+      <a href="#checkout">POST /v1/billing/checkout</a>
+      <a href="#api-keys">API keys</a>
+      <div class="group-label">Elsewhere</div>
+      <a href="/app">Open the tool</a>
+      <a href="#cli-action">CLI &amp; GitHub Action</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>API docs</h1>
+    <p class="lead">Everything the web tool does is available as a plain HTTP API — same rules, same cost estimator, same monthly quota per plan.</p>
+
+    <section id="getting-started">
+      <h2>Getting started</h2>
+      <ol>
+        <li><a href="/login">Sign in</a> with Google or GitHub.</li>
+        <li>Open <a href="/app">the tool</a>, click <strong>API keys</strong> in the top bar, and generate one. It's shown once — copy it somewhere safe.</li>
+        <li>Send it as <code class="inline">Authorization: Bearer &lt;your key&gt;</code> on any request below.</li>
+      </ol>
+      <div class="callout">You don't need an account or a key to try <code class="inline">POST /v1/lint</code> at all — it works anonymously too, just without saved history and under the plain per-IP rate limit instead of your plan's monthly quota.</div>
+    </section>
+
+    <section id="how-to-read">
+      <h2>How to use these docs</h2>
+      <p>The sidebar on the left jumps to a section. Each endpoint block shows the <strong>HTTP method + path</strong>, whether <strong>auth is required</strong>, the request body (if any), and a runnable <code class="inline">curl</code> example you can paste directly into a terminal — just swap in your own key. Response bodies shown are real, trimmed examples, not abstract schemas.</p>
+    </section>
+
+    <section id="auth">
+      <h2>Authentication</h2>
+      <p>Two kinds of bearer token both work on <code class="inline">Authorization: Bearer &lt;token&gt;</code>:</p>
+      <table>
+        <thead><tr><th>Token</th><th>Looks like</th><th>Use for</th></tr></thead>
+        <tbody>
+          <tr><td>Session token</td><td><code class="inline">eyJhbGciOi...</code> (JWT)</td><td>The browser, issued after OAuth sign-in. Expires after 30 days.</td></tr>
+          <tr><td>API key</td><td><code class="inline">mflint_&lt;random&gt;</code></td><td>Scripts, CI, server-to-server. Doesn't expire; revoke it any time from the panel.</td></tr>
+        </tbody>
+      </table>
+      <p>Both are resolved to the same account and the same plan/quota — there's no separate "API plan".</p>
+    </section>
+
+    <section id="limits">
+      <h2>Rate limits</h2>
+      <table>
+        <thead><tr><th>Plan</th><th>Checks / month (signed in)</th></tr></thead>
+        <tbody>
+          <tr><td>Anonymous (no token)</td><td>Unlimited, but ~1 request/sec per IP</td></tr>
+          <tr><td>Free</td><td>50</td></tr>
+          <tr><td>Team — $19/mo</td><td>1,000</td></tr>
+          <tr><td>Pro — $49/mo</td><td>Unlimited</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Check your current usage any time with <a href="#usage">GET /v1/usage</a>.</p>
+    </section>
+
+    <section id="errors">
+      <h2>Errors</h2>
+      <table>
+        <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>400</td><td>Bad request — invalid manifest, plan, or cloud</td></tr>
+          <tr><td>401</td><td>Missing or invalid bearer token</td></tr>
+          <tr><td>404</td><td>No such resource (e.g. API key id)</td></tr>
+          <tr><td>429</td><td>Rate limit or monthly quota exceeded</td></tr>
+          <tr><td>501</td><td>Billing not configured on this server yet</td></tr>
+        </tbody>
+      </table>
+      <p>Errors are returned as a plain text body describing what went wrong.</p>
+    </section>
+
+    <section id="lint">
+      <h2>Lint + estimate a manifest</h2>
+      <div class="endpoint"><span class="method post">POST</span><code>/v1/lint</code><span class="auth-badge">auth optional</span></div>
+      <p>Body is either raw YAML, or JSON with the manifest inline:</p>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Default</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inline">manifest</code></td><td>string</td><td>—</td><td>required (JSON form only — raw form is the whole body)</td></tr>
+          <tr><td><code class="inline">cloud</code></td><td>string</td><td><code class="inline">aws</code></td><td><code class="inline">aws</code>, <code class="inline">gcp</code>, or <code class="inline">azure</code></td></tr>
+          <tr><td><code class="inline">save</code></td><td>bool</td><td><code class="inline">false</code></td><td>persist the report — requires auth</td></tr>
+        </tbody>
+      </table>
+      <pre>curl https://your-domain/v1/lint \
+  -H "Authorization: Bearer mflint_xxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "manifest": "apiVersion: apps/v1\nkind: Deployment\n...",
+    "cloud": "aws",
+    "save": true
+  }'</pre>
+      <h3>Response</h3>
+      <pre>{
+  "violations": [
+    {
+      "ruleId": "K8S-001",
+      "title": "Container may run as root",
+      "severity": "critical",
+      "resource": { "kind": "Deployment", "name": "web", "namespace": "default" },
+      "message": "container \"web\" does not set securityContext.runAsNonRoot...",
+      "suggestion": "Set securityContext.runAsNonRoot: true...",
+      "docLink": "https://mflint.dev/rules/K8S-001"
+    }
+  ],
+  "cost": {
+    "cloud": "aws",
+    "totalMonthlyLowUsd": 17.79,
+    "totalMonthlyHighUsd": 35.59,
+    "workloads": [ { "resource": {"kind":"Deployment","name":"web"}, "replicas": 3, "monthlyLowUsd": 17.79, "monthlyHighUsd": 35.59 } ]
+  },
+  "criticalCount": 1,
+  "warningCount": 0,
+  "infoCount": 0
+}</pre>
+    </section>
+
+    <section id="usage">
+      <h2>Check your usage</h2>
+      <div class="endpoint"><span class="method get">GET</span><code>/v1/usage</code><span class="auth-badge">auth required</span></div>
+      <pre>curl https://your-domain/v1/usage -H "Authorization: Bearer mflint_xxxxxxxx"</pre>
+      <pre>{ "plan": "free", "limit": 50, "used": 12, "remaining": 38 }</pre>
+      <p class="muted"><code class="inline">limit: 0</code> and <code class="inline">remaining: -1</code> mean unlimited (Pro).</p>
+    </section>
+
+    <section id="plan">
+      <h2>Check your plan</h2>
+      <div class="endpoint"><span class="method get">GET</span><code>/v1/billing/plan</code><span class="auth-badge">auth required</span></div>
+      <pre>curl https://your-domain/v1/billing/plan -H "Authorization: Bearer mflint_xxxxxxxx"</pre>
+      <pre>{ "plan": "free", "status": "active", "provider": "none" }</pre>
+    </section>
+
+    <section id="checkout">
+      <h2>Upgrade your plan</h2>
+      <div class="endpoint"><span class="method post">POST</span><code>/v1/billing/checkout</code><span class="auth-badge">auth required</span></div>
+      <pre>curl https://your-domain/v1/billing/checkout \
+  -H "Authorization: Bearer mflint_xxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{"plan": "team"}'</pre>
+      <pre>{ "url": "https://nowpayments.io/payment/...", "orderId": "mflint_..." }</pre>
+      <p class="muted">Open <code class="inline">url</code> to pay with crypto via NOWPayments. Your plan updates automatically once the payment confirms.</p>
+    </section>
+
+    <section id="api-keys">
+      <h2>Manage API keys</h2>
+      <div class="endpoint"><span class="method get">GET</span><code>/v1/api-keys</code><span class="auth-badge">auth required</span></div>
+      <pre>[{ "id": 3, "label": "ci", "createdAt": "2026-08-01T12:00:00Z", "lastUsedAt": "2026-08-20T09:14:00Z" }]</pre>
+
+      <div class="endpoint"><span class="method post">POST</span><code>/v1/api-keys</code><span class="auth-badge">auth required</span></div>
+      <p>Body: <code class="inline">{"label": "ci"}</code> (label is optional). The raw key is only ever in this one response — store it now.</p>
+      <pre>{ "id": 4, "label": "ci", "createdAt": "2026-08-24T10:00:00Z", "key": "mflint_ab12cd34..." }</pre>
+
+      <div class="endpoint"><span class="method delete">DELETE</span><code>/v1/api-keys/{id}</code><span class="auth-badge">auth required</span></div>
+      <p>Revokes a key immediately. Returns <code class="inline">204</code>.</p>
+    </section>
+
+    <section id="cli-action">
+      <h2>CLI &amp; GitHub Action</h2>
+      <p>Prefer not to call the API directly? The CLI wraps it locally and needs no key at all:</p>
+      <pre>mflint ./manifests --format=table --cloud=aws</pre>
+      <p>And the GitHub Action (<code class="inline">action/action.yml</code> in the repo) wraps the CLI to comment the report on your PRs — see the repo README for setup.</p>
+    </section>
+  </main>
+</div>
+</body>
+</html>

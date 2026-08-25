@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mflint — Kubernetes manifest lint + cost estimate</title>
+<meta name="description" content="Check Kubernetes manifests for security and reliability issues, and estimate their monthly cloud cost, before you deploy. No cluster agent required.">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #0b0f14;
+    --bg-alt: #0e141c;
+    --panel: #121821;
+    --panel-2: #161d28;
+    --border: #232b36;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --critical: #f85149;
+    --warning: #d29922;
+    --info: #58a6ff;
+    --accent: #3fb950;
+    --accent-dim: rgba(63, 185, 80, 0.12);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 2rem; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(11, 15, 20, 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; }
+  .logo { font-weight: 700; font-size: 1.15rem; text-decoration: none; }
+  .navlinks { display: flex; align-items: center; gap: 1.5rem; font-size: 0.9rem; }
+  .navlinks a { text-decoration: none; color: var(--muted); }
+  .navlinks a:hover { color: var(--text); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.65rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.9rem; font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: #04170a; }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-secondary { background: var(--panel); color: var(--text); border-color: var(--border); }
+  .btn-secondary:hover { border-color: var(--muted); }
+
+  header.hero { padding: 5rem 0 4rem; text-align: center; }
+  header.hero h1 {
+    font-size: clamp(2.1rem, 4.5vw, 3.2rem);
+    line-height: 1.15;
+    margin: 0 0 1.1rem;
+    letter-spacing: -0.02em;
+  }
+  header.hero .accent-text { color: var(--accent); }
+  header.hero p.lead {
+    color: var(--muted);
+    font-size: 1.1rem;
+    max-width: 640px;
+    margin: 0 auto 2rem;
+  }
+  .hero-ctas { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
+  .hero-note { margin-top: 1rem; color: var(--muted); font-size: 0.8rem; }
+
+  section { padding: 3.5rem 0; }
+  section.alt { background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  h2 { font-size: 1.6rem; margin: 0 0 0.5rem; letter-spacing: -0.01em; }
+  .section-lead { color: var(--muted); max-width: 620px; margin: 0 0 2.2rem; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .card h3 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+  .card .icon {
+    width: 2.25rem; height: 2.25rem; border-radius: 8px;
+    background: var(--accent-dim); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 0.9rem;
+  }
+
+  .rule-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .rule-list li {
+    display: flex; gap: 0.6rem; align-items: baseline;
+    font-size: 0.88rem; color: var(--muted);
+  }
+  .rule-list .sev {
+    flex-shrink: 0;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.03em;
+    padding: 0.15rem 0.45rem; border-radius: 999px; border: 1px solid;
+  }
+  .sev.critical { color: var(--critical); border-color: var(--critical); }
+  .sev.warning { color: var(--warning); border-color: var(--warning); }
+  .rule-list code { color: var(--text); }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; counter-reset: step; }
+  .step { position: relative; padding-left: 2.6rem; }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 1.9rem; height: 1.9rem; border-radius: 50%;
+    background: var(--accent-dim); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem;
+  }
+  .step h3 { margin: 0 0 0.4rem; font-size: 1rem; }
+  .step p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+
+  pre.snippet {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.2rem; font-size: 0.82rem; overflow-x: auto; color: #c9d1d9;
+    margin: 0;
+  }
+
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; align-items: stretch; }
+  .plan {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem 1.5rem;
+    display: flex; flex-direction: column;
+  }
+  .plan.featured { border-color: var(--accent); background: linear-gradient(180deg, var(--accent-dim), var(--panel) 45%); }
+  .plan .badge {
+    align-self: flex-start;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+    color: var(--accent); background: var(--accent-dim);
+    padding: 0.2rem 0.55rem; border-radius: 999px; margin-bottom: 0.8rem;
+  }
+  .plan h3 { margin: 0; font-size: 1.05rem; }
+  .plan .price { font-size: 2rem; font-weight: 700; margin: 0.5rem 0 0.2rem; }
+  .plan .price span { font-size: 0.95rem; font-weight: 500; color: var(--muted); }
+  .plan .plan-note { color: var(--muted); font-size: 0.82rem; margin: 0 0 1.25rem; }
+  .plan ul { list-style: none; padding: 0; margin: 0 0 1.5rem; display: grid; gap: 0.55rem; flex: 1; }
+  .plan li { font-size: 0.87rem; color: var(--text); display: flex; gap: 0.5rem; }
+  .plan li::before { content: "✓"; color: var(--accent); flex-shrink: 0; }
+  .plan .btn { width: 100%; }
+  .pricing-note { color: var(--muted); font-size: 0.8rem; margin-top: 1.5rem; text-align: center; }
+
+  footer { padding: 2.5rem 0 3rem; border-top: 1px solid var(--border); }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  footer p { color: var(--muted); font-size: 0.82rem; margin: 0; }
+  footer .foot-links { display: flex; gap: 1.25rem; font-size: 0.85rem; }
+  footer .foot-links a { color: var(--muted); text-decoration: none; }
+  footer .foot-links a:hover { color: var(--text); }
+
+  @media (max-width: 820px) {
+    .grid-3, .steps, .pricing-grid { grid-template-columns: 1fr; }
+    .navlinks { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/">mflint</a>
+    <div class="navlinks">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#how">How it works</a>
+      <a href="/docs">API docs</a>
+      <a class="btn btn-secondary" href="/login">Open the tool</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Know what a manifest costs<br>and where it's <span class="accent-text">unsafe</span> — before you deploy it.</h1>
+    <p class="lead">
+      mflint checks Kubernetes manifests against 13 security &amp; reliability rules and estimates
+      their monthly cloud cost, in one report. No cluster agent to install — sign in with Google
+      or GitHub and paste a manifest.
+    </p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="/login">Check a manifest, free →</a>
+      <a class="btn btn-secondary" href="#pricing">See pricing</a>
+    </div>
+    <p class="hero-note">Paste-and-check in the browser · CLI for CI · GitHub Action for PR comments</p>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <h2>The gap between a linter and a cost calculator</h2>
+    <p class="section-lead">
+      Policy linters like kube-linter and Polaris ignore cost. Cost tools like Infracost parse
+      Terraform, not raw manifests. mflint combines both, pre-deploy, on the actual YAML you're
+      about to apply.
+    </p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">🛡</div>
+        <h3>Security &amp; reliability linting</h3>
+        <p>13 rules across Deployments, StatefulSets, Services, Ingress, PVCs and more — each with a plain-language fix.</p>
+      </div>
+      <div class="card">
+        <div class="icon">💵</div>
+        <h3>Monthly cost estimate</h3>
+        <p>Reads CPU/memory requests and replica counts, prices them against AWS, GCP, or Azure — a clearly labeled estimate, not a bill.</p>
+      </div>
+      <div class="card">
+        <div class="icon">⚙️</div>
+        <h3>CLI + GitHub Action</h3>
+        <p>Run locally, gate CI on CRITICAL findings, or get the full report posted as a PR comment automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>A sample of what it catches</h2>
+    <p class="section-lead">Four CRITICAL checks, six WARNING checks, three INFO checks — every rule ships with the exact fix.</p>
+    <div class="grid-3">
+      <div class="card">
+        <ul class="rule-list">
+          <li><span class="sev critical">CRIT</span> Container may run as root</li>
+          <li><span class="sev critical">CRIT</span> Privileged container</li>
+          <li><span class="sev critical">CRIT</span> Secret hardcoded in an env var</li>
+          <li><span class="sev critical">CRIT</span> hostNetwork / hostPID / hostIPC enabled</li>
+        </ul>
+      </div>
+      <div class="card">
+        <ul class="rule-list">
+          <li><span class="sev warning">WARN</span> Missing cpu/memory requests or limits</li>
+          <li><span class="sev warning">WARN</span> Missing liveness/readiness probes</li>
+          <li><span class="sev warning">WARN</span> No PodDisruptionBudget for multi-replica workloads</li>
+        </ul>
+      </div>
+      <div class="card">
+        <ul class="rule-list">
+          <li><span class="sev warning">WARN</span> Image tag not pinned (<code>latest</code>)</li>
+          <li><span class="sev warning">WARN</span> No NetworkPolicy in the namespace</li>
+          <li><span class="sev warning">WARN</span> Deployment has no explicit replica count</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="section-lead">No agent to install on your cluster. Input is a YAML file, output is a report.</p>
+    <div class="steps">
+      <div class="step">
+        <h3>Paste or point at a manifest</h3>
+        <p>Use the web tool, or run the CLI against a file or a whole directory.</p>
+      </div>
+      <div class="step">
+        <h3>Get a report</h3>
+        <p>Every violation with its severity, the resource it's on, and how to fix it — plus a monthly cost range.</p>
+      </div>
+      <div class="step">
+        <h3>Gate your pipeline</h3>
+        <p>The CLI exits non-zero on any CRITICAL finding; the GitHub Action comments the report on the PR.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>Drop it into CI</h2>
+    <p class="section-lead">The GitHub Action builds and runs the CLI, then posts (and updates) one PR comment with the full report.</p>
+    <pre class="snippet">- uses: &lt;owner&gt;/&lt;repo&gt;/action@main
+  with:
+    path: ./manifests
+    cloud: aws</pre>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2>Pricing</h2>
+    <p class="section-lead">Sign in with Google or GitHub to use the web tool — it's free, takes one click, and unlocks saved report history. The CLI works without signing in at all.</p>
+    <div class="pricing-grid">
+      <div class="plan">
+        <span class="badge">FREE</span>
+        <h3>Free</h3>
+        <p class="price">$0 <span>/ month</span></p>
+        <p class="plan-note">For trying it out or occasional use</p>
+        <ul>
+          <li>50 checks/month, sign in with Google or GitHub</li>
+          <li>Unlimited checks via the CLI, no sign-in needed</li>
+          <li>CLI works in any CI pipeline</li>
+        </ul>
+        <a class="btn btn-secondary" href="/login">Start free</a>
+      </div>
+      <div class="plan featured">
+        <span class="badge">MOST POPULAR</span>
+        <h3>Team</h3>
+        <p class="price">$19 <span>/ month</span></p>
+        <p class="plan-note">For teams running this in CI regularly</p>
+        <ul>
+          <li>1,000 checks/month</li>
+          <li>Saved report history</li>
+          <li>GitHub Action PR comments</li>
+        </ul>
+        <a class="btn btn-primary" href="/login">Upgrade to Team</a>
+      </div>
+      <div class="plan">
+        <span class="badge">PRO</span>
+        <h3>Pro</h3>
+        <p class="price">$49 <span>/ month</span></p>
+        <p class="plan-note">For agencies and heavy API use</p>
+        <ul>
+          <li>Unlimited checks</li>
+          <li>Saved report history</li>
+          <li>Priority support</li>
+        </ul>
+        <a class="btn btn-secondary" href="/login">Upgrade to Pro</a>
+      </div>
+    </div>
+    <p class="pricing-note">Team/Pro CTAs take you to sign in with Google or GitHub, then click Upgrade in the tool to pay with crypto via NOWPayments.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>mflint — pre-deploy Kubernetes linting + cost estimation. Cost figures are list-price estimates, not a guaranteed bill.</p>
+    <div class="foot-links">
+      <a href="/login">Open the tool</a>
+      <a href="/docs">API docs</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
