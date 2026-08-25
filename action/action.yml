@@ -24,7 +24,7 @@ inputs:
   api-base:
     description: 'mflint API base URL'
     required: false
-    default: 'https://api.mflint.dev'
+    default: 'https://cubzi.cloud'
 outputs:
   critical-count:
     description: 'Number of CRITICAL violations found'

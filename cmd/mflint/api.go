@@ -16,7 +16,7 @@ import (
 // defaultAPIBase is where the CLI talks to when no --api-base/MFLINT_API_BASE
 // override and no saved config value are set. Point this at wherever the
 // server (cmd/server) is actually deployed before publishing the binary.
-const defaultAPIBase = "https://api.mflint.dev"
+const defaultAPIBase = "https://cubzi.cloud"
 
 type usageResponse struct {
 	Plan      string `json:"plan"`

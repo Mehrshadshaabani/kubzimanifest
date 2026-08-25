@@ -54,9 +54,8 @@ gating), 2 on any error (network, invalid key, quota exceeded), 0 otherwise.
 
 `login` saves the key to `$XDG_CONFIG_HOME/mflint/config.json` (`~/.config/mflint/config.json`
 on Linux/most setups), mode 0600, alongside the resolved `--api-base`. The default API base is
-the `defaultAPIBase` constant in `cmd/mflint/api.go` (`https://api.mflint.dev`) — **update that
-constant to wherever `cmd/server` is actually deployed before publishing a binary**; until then
-every anonymous/default run tries to reach a placeholder domain that doesn't exist.
+the `defaultAPIBase` constant in `cmd/mflint/api.go`, currently `https://cubzi.cloud` (the live
+deployment — see "Deploying to a VPS" below).
 
 ## Running the server locally
 
@@ -161,16 +160,18 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Note: the `docker build` step above was not tested end-to-end from this dev environment — Docker
+**This is live**: deployed at `https://cubzi.cloud` (a 1 vCPU / 1 GB VPS — fine for early traffic,
+revisit sizing once real usage shows up), TLS issued automatically by Caddy. `cmd/mflint/api.go`'s
+`defaultAPIBase` and `action/action.yml`'s `api-base` default both already point at it. Google/
+GitHub OAuth and NOWPayments are still unset there (see "What's stubbed on purpose" below) —
+sign-in and paid checkout stay disabled until those env vars are added to the VPS's `deploy/.env`
+and the stack is restarted (`docker compose up -d`).
+
+Note: `docker build` could not be tested from this dev environment before the VPS existed — Docker
 Hub (`registry-1.docker.io`) returns `403 Forbidden` on every pull from this machine's network
 (confirmed with plain `docker pull alpine`, unrelated to this project's Dockerfile), most likely a
-sanctions-related geo-block on this connection. It should build fine from a VPS with normal
-(non-Iran) egress, since `deploy/docker-compose.yml` builds the image on the host you run it on,
-not here — but verify with `docker compose up -d --build` on the actual VPS before relying on it.
-
-Then, before publishing the CLI binary or the GitHub Action, point them at this real domain:
-`cmd/mflint/api.go`'s `defaultAPIBase` constant and `action/action.yml`'s `api-base` input default
-both currently say `https://api.mflint.dev` — replace both with `https://<DOMAIN>` and rebuild.
+sanctions-related geo-block on this connection. It built and runs fine on the VPS itself, which has
+normal (non-Iran) egress.
 
 ## GitHub Action
 
@@ -202,8 +203,5 @@ estimator and parser have their own unit tests.
   doesn't operate in Iran. NOWPayments (crypto) is the one actually wired in when configured.
 - **Google/GitHub OAuth apps**: the code is complete and wired in, but each provider only turns on
   once you've created that OAuth app yourself and set its env vars — see "Sign-in" above.
-- **Production hosting/TLS/email delivery**: not addressed in this pass.
-- **CLI's default API base** (`cmd/mflint/api.go`'s `defaultAPIBase`): a placeholder domain
-  (`https://api.mflint.dev`). The CLI now requires a reachable `cmd/server` for every run (see
-  "CLI" above) — publishing a binary before deploying the server publicly and pointing this
-  constant at it means every anonymous/no-flag run fails to connect.
+- **Email delivery**: not addressed — there's no email-based flow to begin with (OAuth-only
+  sign-in), so nothing currently needs it.
