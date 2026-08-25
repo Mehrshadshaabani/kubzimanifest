@@ -143,6 +143,35 @@ Get an API key + IPN secret from the Store Settings tab at **account-sandbox.now
 signup step. Team is priced at $19, Pro at $49 (`internal/billing/nowpayments.go`'s
 `planPriceUSD` — edit alongside the pricing table in the original spec if it changes).
 
+## Deploying to a VPS
+
+`Dockerfile` builds `cmd/server` (a static binary + `web/`). `deploy/docker-compose.yml` runs it
+alongside Postgres and a Caddy reverse proxy that gets a free TLS cert automatically (just needs
+a domain's DNS A record pointed at the VPS).
+
+```sh
+# on the VPS, with Docker + the Docker Compose plugin installed and a domain's
+# A record already pointing at this machine's IP:
+git clone <your-repo-url> mflint && cd mflint/deploy
+cp .env.example .env
+# edit .env: DOMAIN, POSTGRES_PASSWORD, JWT_SECRET (openssl rand -hex 32), and
+# whichever of the OAuth/NOWPayments vars you have real credentials for yet —
+# every one is optional at the server level; only the features that need it
+# stay disabled without it (see "What's stubbed on purpose" below)
+docker compose up -d --build
+```
+
+Note: the `docker build` step above was not tested end-to-end from this dev environment — Docker
+Hub (`registry-1.docker.io`) returns `403 Forbidden` on every pull from this machine's network
+(confirmed with plain `docker pull alpine`, unrelated to this project's Dockerfile), most likely a
+sanctions-related geo-block on this connection. It should build fine from a VPS with normal
+(non-Iran) egress, since `deploy/docker-compose.yml` builds the image on the host you run it on,
+not here — but verify with `docker compose up -d --build` on the actual VPS before relying on it.
+
+Then, before publishing the CLI binary or the GitHub Action, point them at this real domain:
+`cmd/mflint/api.go`'s `defaultAPIBase` constant and `action/action.yml`'s `api-base` input default
+both currently say `https://api.mflint.dev` — replace both with `https://<DOMAIN>` and rebuild.
+
 ## GitHub Action
 
 ```yaml

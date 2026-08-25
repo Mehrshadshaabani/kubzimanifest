@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mflint
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: mflint
+    volumes:
+      - mflint-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mflint"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  server:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://mflint:${POSTGRES_PASSWORD}@postgres:5432/mflint?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET}
+      GOOGLE_OAUTH_REDIRECT_URL: ${GOOGLE_OAUTH_REDIRECT_URL}
+      GITHUB_OAUTH_CLIENT_ID: ${GITHUB_OAUTH_CLIENT_ID}
+      GITHUB_OAUTH_CLIENT_SECRET: ${GITHUB_OAUTH_CLIENT_SECRET}
+      GITHUB_OAUTH_REDIRECT_URL: ${GITHUB_OAUTH_REDIRECT_URL}
+      NOWPAYMENTS_API_KEY: ${NOWPAYMENTS_API_KEY}
+      NOWPAYMENTS_IPN_SECRET: ${NOWPAYMENTS_IPN_SECRET}
+      NOWPAYMENTS_API_BASE: ${NOWPAYMENTS_API_BASE}
+      NOWPAYMENTS_CALLBACK_URL: ${NOWPAYMENTS_CALLBACK_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - server
+    restart: unless-stopped
+
+volumes:
+  mflint-postgres-data:
+  caddy-data:
+  caddy-config:

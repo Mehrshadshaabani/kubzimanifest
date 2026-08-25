@@ -14,3 +14,6 @@
 # Editor/OS cruft
 .DS_Store
 *.swp
+
+# Real deploy secrets (deploy/.env.example is the committed template)
+deploy/.env

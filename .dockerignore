@@ -1,0 +1,7 @@
+.git
+.claude
+mflint
+mflint-server
+mflint-cli
+*.md
+deploy
