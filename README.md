@@ -1,8 +1,13 @@
-# mflint
+# Cubzi
 
 Lints Kubernetes manifests for security/reliability issues and estimates their monthly cloud
 cost — a CLI, an HTTP API, and a paste-YAML web page, all sharing one Go core. Cost figures are
 static list-price estimates, not a guaranteed bill.
+
+Live at [cubzi.cloud](https://cubzi.cloud) · [docs](https://cubzi.cloud/docs) · [blog](https://cubzi.cloud/blog)
+
+The CLI/module is still named `mflint` internally (binary, package paths, API key prefix) — the
+product's public name is Cubzi, the code just hasn't been renamed to match yet.
 
 ## Layout
 
