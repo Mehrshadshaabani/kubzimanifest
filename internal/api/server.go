@@ -74,6 +74,7 @@ func (s *Server) Router() http.Handler {
 		r.Get("/app/", s.serveWebFile("index.html"))
 		r.Get("/login", s.serveWebFile("login.html"))
 		r.Get("/docs", s.serveWebFile("docs.html"))
+		r.Get("/privacy", s.serveWebFile("privacy.html"))
 		r.Get("/blog", s.serveWebFile("blog.html"))
 		r.Get("/blog/{slug}", s.serveBlogPost)
 		r.Get("/robots.txt", s.serveWebFile("robots.txt"))

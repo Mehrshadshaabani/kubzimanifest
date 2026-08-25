@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Cubzi</title>
+<meta name="description" content="How Cubzi collects, uses, and protects your data.">
+<link rel="canonical" href="https://cubzi.cloud/privacy">
+<meta name="robots" content="index, follow">
+<style>
+:root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+a{color:var(--info)}
+.wrap{max-width:720px;margin:0 auto;padding:0 1.5rem}
+nav{border-bottom:1px solid var(--border);padding:1rem 0}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;max-width:900px}
+.logo{font-weight:700;font-size:1.15rem;text-decoration:none;color:var(--text)}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:.88rem;margin-left:1.1rem}
+.navlinks a:hover{color:var(--text)}
+article{padding:3rem 0 3rem}
+article h1{font-size:1.9rem;line-height:1.25;margin:0 0 .6rem;letter-spacing:-.01em}
+.meta{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+article h2{font-size:1.2rem;margin:2.2rem 0 .75rem;letter-spacing:-.01em}
+article h3{font-size:1rem;margin:1.4rem 0 .5rem}
+article p{margin:0 0 1rem}
+article ul,article ol{margin:0 0 1rem;padding-left:1.4rem}
+article li{margin-bottom:.4rem}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--panel-2);border:1px solid var(--border);border-radius:4px;padding:.1rem .35rem;font-size:.88em}
+.callout{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;font-size:.92rem;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1rem 0}
+th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+footer{border-top:1px solid var(--border);padding:2rem 0;color:var(--muted);font-size:.82rem}
+footer .wrap{max-width:900px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+footer a{color:var(--muted)}
+.whatsapp-fab{position:fixed;right:1.25rem;bottom:1.25rem;z-index:20;width:3.25rem;height:3.25rem;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);text-decoration:none}
+.whatsapp-fab svg{width:1.6rem;height:1.6rem}
+@media(max-width:640px){.navlinks{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/">Cubzi</a>
+    <div class="navlinks">
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/docs">API docs</a>
+      <a href="/blog">Blog</a>
+      <a href="/login">Open the tool</a>
+    </div>
+  </div>
+</nav>
+
+<article class="wrap">
+  <h1>Privacy Policy</h1>
+  <p class="meta">Effective August 26, 2026</p>
+
+  <p>This policy explains what data Cubzi ("we", "us") collects when you use cubzi.cloud, the Cubzi CLI, or the Cubzi GitHub Action (together, the "Service"), and what we do with it.</p>
+
+  <h2>1. What we collect</h2>
+
+  <h3>Account information</h3>
+  <p>When you sign in with Google or GitHub, we receive your email address and a provider-issued account ID from that provider. We never see or store a password — Cubzi has no password-based sign-in at all.</p>
+
+  <h3>Manifest content</h3>
+  <p>The Kubernetes YAML you submit for linting is processed to produce your report and is <strong>not stored</strong> unless you explicitly check "save" (or pass <code>save: true</code> via the API) while signed in — in which case the report (violations + cost estimate) is saved to your account so you can view it again later. The manifest content itself is hashed for deduplication; the raw YAML is not kept beyond generating that report.</p>
+
+  <h3>API keys</h3>
+  <p>If you generate an API key from the panel, we store only its SHA-256 hash, never the raw key. The raw key is shown to you exactly once, at creation.</p>
+
+  <h3>Usage data</h3>
+  <p>We record how many checks your account has run this month, to enforce your plan's quota. Anonymous (signed-out) requests are only tracked by IP address, briefly, to apply a rate limit — this is not tied to any account.</p>
+
+  <h3>Payment information</h3>
+  <p>Paid plans are billed via a third-party crypto payment processor (CoinGate or NOWPayments). <strong>We never receive or store your payment details, wallet address, or transaction credentials</strong> — the processor handles the payment directly and tells us only whether an order was paid, which we use to activate your plan.</p>
+
+  <h2>2. How we use it</h2>
+  <ul>
+    <li>To provide the linting/cost-estimation service and show you your results.</li>
+    <li>To enforce the monthly check quota for your plan.</li>
+    <li>To let you sign back in and see saved reports and API keys.</li>
+    <li>To activate or renew a paid plan after a confirmed payment.</li>
+  </ul>
+  <p>We do not sell your data, and we do not use your manifest content for anything other than generating your own report.</p>
+
+  <h2>3. Third parties involved</h2>
+  <table>
+    <thead><tr><th>Who</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Google, GitHub</td><td>Sign-in (OAuth) — provides your email and account ID</td></tr>
+      <tr><td>CoinGate, NOWPayments</td><td>Processes crypto payments for paid plans</td></tr>
+      <tr><td>Our hosting provider</td><td>Runs the server your data is processed and stored on</td></tr>
+    </tbody>
+  </table>
+  <p>Each of these has its own privacy policy governing the information you give them directly.</p>
+
+  <h2>4. Data retention</h2>
+  <p>Account data and saved reports are kept until you delete them or ask us to delete your account. Unsaved manifest checks are not retained at all past generating the report shown to you. API keys can be revoked at any time from the panel, which deletes the stored hash immediately.</p>
+
+  <h2>5. Your rights</h2>
+  <p>You can revoke API keys and delete saved reports yourself from the panel at any time. To request a copy of your data or full account deletion, contact us (see below) — we'll act on it within a reasonable time.</p>
+
+  <h2>6. Security</h2>
+  <p>The Service is served entirely over HTTPS. API keys are stored as SHA-256 hashes, not plaintext. Session tokens expire after 30 days. No system is perfectly secure, but we don't store anything we don't need in order to run the Service.</p>
+
+  <h2>7. Cookies and tracking</h2>
+  <p>Cubzi does not currently use cookies for tracking or third-party analytics. Your session token is stored in your browser's local storage, not a cookie. If this changes, this policy will be updated first.</p>
+
+  <h2>8. Children's privacy</h2>
+  <p>The Service is intended for professional/developer use and is not directed at children under 16. We don't knowingly collect data from anyone in that age group.</p>
+
+  <h2>9. Changes to this policy</h2>
+  <p>If this policy changes materially, the "Effective" date at the top will be updated. Continued use of the Service after a change means you accept the updated policy.</p>
+
+  <h2>10. Contact</h2>
+  <p>Questions, data requests, or anything else about privacy: message us on WhatsApp at <a href="https://wa.me/447346473123" target="_blank" rel="noopener">+44 7346 473123</a>.</p>
+</article>
+
+<footer>
+  <div class="wrap">
+    <p>Cubzi — pre-deploy Kubernetes linting + cost estimation.</p>
+    <div><a href="/">Home</a> &middot; <a href="/docs">API docs</a> &middot; <a href="/login">Open the tool</a></div>
+  </div>
+</footer>
+
+<a class="whatsapp-fab" href="https://wa.me/447346473123" target="_blank" rel="noopener" aria-label="Chat with support on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.1c-.24.68-1.4 1.3-1.93 1.35-.53.06-1.03.27-3.44-.72-2.9-1.19-4.76-4.15-4.9-4.34-.14-.19-1.17-1.56-1.17-2.98s.74-2.11 1-2.4c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.14.07.15.12.32.02.51-.1.19-.15.3-.29.47-.15.17-.31.37-.44.5-.15.15-.3.31-.13.6.17.29.76 1.26 1.64 2.04 1.13 1 2.08 1.32 2.37 1.47.29.15.46.12.63-.07.17-.19.72-.84.92-1.13.19-.29.38-.24.64-.14.26.1 1.66.78 1.94.93.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+</a>
+
+</body>
+</html>
