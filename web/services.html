@@ -96,10 +96,10 @@ footer a{color:var(--muted)}
     <a class="logo" href="/">Cubzi</a>
     <div class="navlinks">
       <a href="/#features">Features</a>
-      <a href="/#pricing">Pricing</a>
+      <a href="/about">About</a>
       <a href="/services">Services</a>
       <a href="/blog">Blog</a>
-      <a href="/docs">API docs</a>
+      <a href="/contact">Contact</a>
       <a href="/login">Open the tool</a>
     </div>
   </div>
@@ -134,6 +134,12 @@ footer a{color:var(--muted)}
     <input type="text" id="contactName" placeholder="Jane Doe">
     <label for="contactEmail">Email</label>
     <input type="text" id="contactEmail" placeholder="jane@company.com">
+    <label for="contactPhone">Phone</label>
+    <input type="text" id="contactPhone" placeholder="+1 555 123 4567">
+    <label for="contactAddress">Billing address</label>
+    <input type="text" id="contactAddress" placeholder="123 Main St, City, Country">
+    <label for="contactPostalCode">Postal code</label>
+    <input type="text" id="contactPostalCode" placeholder="12345">
     <label for="projectNotes">Project details (optional)</label>
     <textarea id="projectNotes" placeholder="What are you trying to build or fix?"></textarea>
     <p class="err" id="modalErr"></p>
@@ -178,11 +184,19 @@ const modalSub = document.getElementById('modalSub');
 const modalErr = document.getElementById('modalErr');
 const contactName = document.getElementById('contactName');
 const contactEmail = document.getElementById('contactEmail');
+const contactPhone = document.getElementById('contactPhone');
+const contactAddress = document.getElementById('contactAddress');
+const contactPostalCode = document.getElementById('contactPostalCode');
 const projectNotes = document.getElementById('projectNotes');
 const modalSubmit = document.getElementById('modalSubmit');
 const modalCancel = document.getElementById('modalCancel');
 
 let pendingOrder = null; // { serviceId, packageId }
+
+// Illustrative USD->EUR rate for display only — actual checkout still
+// charges the USD amount via the configured crypto provider.
+const USD_TO_EUR = 0.92;
+const eur = (usd) => Math.round(usd * USD_TO_EUR);
 
 function escapeHTML(s) {
   const div = document.createElement('div');
@@ -193,7 +207,7 @@ function escapeHTML(s) {
 function openOrderModal(svc, pkg) {
   pendingOrder = { serviceId: svc.id, packageId: pkg.id };
   modalTitle.textContent = svc.name + ' — ' + pkg.name;
-  modalSub.textContent = '$' + pkg.priceUsd + (pkg.billing === '/mo' ? '/mo' : ' one-time') + '. We\'ll follow up by email once you\'ve paid.';
+  modalSub.textContent = '$' + pkg.priceUsd + ' (~€' + eur(pkg.priceUsd) + ')' + (pkg.billing === '/mo' ? '/mo' : ' one-time') + '. We\'ll follow up by email once you\'ve paid.';
   modalErr.style.display = 'none';
   overlay.classList.add('open');
 }
@@ -210,8 +224,8 @@ modalSubmit.addEventListener('click', async () => {
     window.location.href = '/login';
     return;
   }
-  if (!contactName.value.trim() || !contactEmail.value.trim()) {
-    modalErr.textContent = 'Name and email are required.';
+  if (!contactName.value.trim() || !contactEmail.value.trim() || !contactPhone.value.trim() || !contactAddress.value.trim() || !contactPostalCode.value.trim()) {
+    modalErr.textContent = 'Name, email, phone, address, and postal code are all required.';
     modalErr.style.display = 'block';
     return;
   }
@@ -227,6 +241,9 @@ modalSubmit.addEventListener('click', async () => {
         packageId: pendingOrder.packageId,
         contactName: contactName.value.trim(),
         contactEmail: contactEmail.value.trim(),
+        contactPhone: contactPhone.value.trim(),
+        contactAddress: contactAddress.value.trim(),
+        contactPostalCode: contactPostalCode.value.trim(),
         projectNotes: projectNotes.value.trim(),
       }),
     });
@@ -266,7 +283,7 @@ function render(catalog) {
       card.className = 'package' + (pkg.id === 'growth' ? ' growth' : '') + (pkg.custom ? ' custom' : '');
       const priceHTML = pkg.custom
         ? '<div class="price">Custom</div>'
-        : `<div class="price">$${pkg.priceUsd}<span class="unit"> ${pkg.billing === '/mo' ? '/ mo' : 'one-time'}</span></div>`;
+        : `<div class="price">$${pkg.priceUsd}<span class="unit"> ${pkg.billing === '/mo' ? '/ mo' : 'one-time'}</span></div><div class="unit" style="margin-top:-.6rem;margin-bottom:.9rem">~€${eur(pkg.priceUsd)} ${pkg.billing === '/mo' ? '/ mo' : 'one-time'}</div>`;
       const featuresHTML = pkg.features.map(f => `<li>${escapeHTML(f)}</li>`).join('');
       card.innerHTML = `
         ${pkg.id === 'growth' ? '<span class="badge">Most popular</span>' : ''}

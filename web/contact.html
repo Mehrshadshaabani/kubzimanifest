@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact Us — Cubzi</title>
+<meta name="description" content="Get in touch with Cubzi — email, WhatsApp, or send a message directly.">
+<link rel="canonical" href="https://cubzi.cloud/contact">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Contact Us — Cubzi">
+<meta property="og:description" content="Get in touch with Cubzi — email, WhatsApp, or send a message directly.">
+<meta property="og:url" content="https://cubzi.cloud/contact">
+<meta property="og:image" content="https://cubzi.cloud/images/og-home.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/images/og-home.png">
+<style>
+:root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--info)}
+.wrap{max-width:640px;margin:0 auto;padding:0 1.5rem}
+nav{border-bottom:1px solid var(--border);padding:1rem 0}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;max-width:1080px}
+.logo{font-weight:700;font-size:1.15rem;text-decoration:none;color:var(--text)}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:.88rem;margin-left:1.1rem}
+.navlinks a:hover{color:var(--text)}
+@media(max-width:640px){.navlinks{display:none}}
+header.hero{padding:3.5rem 0 2rem;text-align:center}
+header.hero h1{font-size:2rem;margin:0 0 .75rem;letter-spacing:-.01em}
+header.hero p{color:var(--muted);font-size:1.02rem;max-width:520px;margin:0 auto}
+.channels{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
+.channel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-decoration:none;color:var(--text);text-align:center}
+.channel:hover{border-color:var(--accent)}
+.channel .icon{font-size:1.5rem;margin-bottom:.5rem}
+.channel .label{font-weight:600;font-size:.92rem}
+.channel .value{color:var(--muted);font-size:.82rem;margin-top:.2rem;word-break:break-word}
+@media(max-width:520px){.channels{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin:0 0 3rem}
+.card h2{margin:0 0 .25rem;font-size:1.1rem}
+.card p.sub{color:var(--muted);font-size:.85rem;margin:0 0 1rem}
+label{display:block;font-size:.85rem;color:var(--muted);margin:1rem 0 .35rem}
+label:first-of-type{margin-top:0}
+input,textarea{width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:.65rem .8rem;font-size:.92rem;font-family:inherit}
+textarea{min-height:110px;resize:vertical}
+.submit{width:100%;margin-top:1.4rem;background:var(--accent);border:1px solid var(--accent);color:#04170a;font-weight:700;border-radius:7px;padding:.75rem;font-size:.95rem;cursor:pointer}
+.submit:disabled{opacity:.6;cursor:default}
+.err{color:#f85149;font-size:.85rem;margin-top:.7rem;display:none}
+.ok{color:var(--accent);font-size:.85rem;margin-top:.7rem;display:none}
+footer{border-top:1px solid var(--border);padding:2rem 0;color:var(--muted);font-size:.82rem}
+footer .wrap{max-width:1080px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/">Cubzi</a>
+    <div class="navlinks">
+      <a href="/about">About</a>
+      <a href="/services">Services</a>
+      <a href="/blog">Blog</a>
+      <a href="/contact">Contact</a>
+      <a href="/login">Open the tool</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <h1>Contact us</h1>
+  <p>Questions about Cubzi, a service engagement, or anything else — reach us directly or send a message below.</p>
+</header>
+
+<main class="wrap">
+  <div class="channels">
+    <a class="channel" href="mailto:shaabanimehrshad9@gmail.com">
+      <div class="icon">✉️</div>
+      <div class="label">Email</div>
+      <div class="value">shaabanimehrshad9@gmail.com</div>
+    </a>
+    <a class="channel" href="https://wa.me/447346473123" target="_blank" rel="noopener">
+      <div class="icon">💬</div>
+      <div class="label">WhatsApp</div>
+      <div class="value">+44 7346 473123</div>
+    </a>
+  </div>
+
+  <div class="card">
+    <h2>Send a message</h2>
+    <p class="sub">We typically reply within a day.</p>
+    <label for="name">Your name</label>
+    <input type="text" id="name" placeholder="Jane Doe">
+    <label for="email">Email</label>
+    <input type="text" id="email" placeholder="jane@company.com">
+    <label for="message">Message</label>
+    <textarea id="message" placeholder="How can we help?"></textarea>
+    <button class="submit" id="submitBtn">Send message</button>
+    <p class="err" id="errEl"></p>
+    <p class="ok" id="okEl">Thanks — your message has been sent. We'll get back to you by email.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Cubzi — pre-deploy Kubernetes linting + cost estimation.</p>
+    <div><a href="/">Home</a> &middot; <a href="/about">About</a> &middot; <a href="/services">Services</a> &middot; <a href="/privacy">Privacy</a></div>
+  </div>
+</footer>
+
+<script>
+const nameEl = document.getElementById('name');
+const emailEl = document.getElementById('email');
+const messageEl = document.getElementById('message');
+const submitBtn = document.getElementById('submitBtn');
+const errEl = document.getElementById('errEl');
+const okEl = document.getElementById('okEl');
+
+const TOKEN_KEY = 'mflint_token';
+const getToken = () => localStorage.getItem(TOKEN_KEY);
+
+submitBtn.addEventListener('click', async () => {
+  const name = nameEl.value.trim();
+  const email = emailEl.value.trim();
+  const message = messageEl.value.trim();
+  errEl.style.display = 'none';
+  okEl.style.display = 'none';
+  if (!name || !email || !message) {
+    errEl.textContent = 'Name, email, and message are all required.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  try {
+    const token = getToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    const res = await fetch('/v1/consultations', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ name, email, message }),
+    });
+    if (!res.ok) throw new Error(await res.text() || ('HTTP ' + res.status));
+    okEl.style.display = 'block';
+    nameEl.value = '';
+    emailEl.value = '';
+    messageEl.value = '';
+  } catch (err) {
+    errEl.textContent = 'Could not send — try again, or email us directly.';
+    errEl.style.display = 'block';
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>

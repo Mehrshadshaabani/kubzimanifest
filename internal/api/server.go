@@ -94,6 +94,8 @@ func (s *Server) Router() http.Handler {
 		r.Get("/privacy", s.serveWebFile("privacy.html"))
 		r.Get("/services", s.serveWebFile("services.html"))
 		r.Get("/consulting", s.serveWebFile("consulting.html"))
+		r.Get("/about", s.serveWebFile("about.html"))
+		r.Get("/contact", s.serveWebFile("contact.html"))
 		r.Get("/admin", s.serveWebFile("admin.html"))
 		r.Get("/blog", s.serveWebFile("blog.html"))
 		// Registered before "/blog/{slug}" — chi matches this literal path

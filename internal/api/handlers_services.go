@@ -19,11 +19,14 @@ func (s *Server) handleListServices(w http.ResponseWriter, r *http.Request) {
 }
 
 type serviceOrderRequest struct {
-	ServiceID    string `json:"serviceId"`
-	PackageID    string `json:"packageId"`
-	ContactName  string `json:"contactName"`
-	ContactEmail string `json:"contactEmail"`
-	ProjectNotes string `json:"projectNotes"`
+	ServiceID         string `json:"serviceId"`
+	PackageID         string `json:"packageId"`
+	ContactName       string `json:"contactName"`
+	ContactEmail      string `json:"contactEmail"`
+	ContactPhone      string `json:"contactPhone"`
+	ContactAddress    string `json:"contactAddress"`
+	ContactPostalCode string `json:"contactPostalCode"`
+	ProjectNotes      string `json:"projectNotes"`
 }
 
 type serviceOrderResponse struct {
@@ -44,8 +47,11 @@ func (s *Server) handleCreateServiceOrder(w http.ResponseWriter, r *http.Request
 	}
 	req.ContactName = strings.TrimSpace(req.ContactName)
 	req.ContactEmail = strings.TrimSpace(req.ContactEmail)
-	if req.ContactName == "" || req.ContactEmail == "" {
-		http.Error(w, "contactName and contactEmail are required", http.StatusBadRequest)
+	req.ContactPhone = strings.TrimSpace(req.ContactPhone)
+	req.ContactAddress = strings.TrimSpace(req.ContactAddress)
+	req.ContactPostalCode = strings.TrimSpace(req.ContactPostalCode)
+	if req.ContactName == "" || req.ContactEmail == "" || req.ContactPhone == "" || req.ContactAddress == "" || req.ContactPostalCode == "" {
+		http.Error(w, "contactName, contactEmail, contactPhone, contactAddress, and contactPostalCode are required", http.StatusBadRequest)
 		return
 	}
 
@@ -60,15 +66,18 @@ func (s *Server) handleCreateServiceOrder(w http.ResponseWriter, r *http.Request
 	}
 
 	order, err := s.Store.CreateServiceOrder(r.Context(), store.ServiceOrder{
-		UserID:       userID,
-		ServiceID:    svc.ID,
-		PackageID:    pkg.ID,
-		ServiceName:  svc.Name,
-		PackageName:  pkg.Name,
-		PriceUSD:     pkg.PriceUSD,
-		ContactName:  req.ContactName,
-		ContactEmail: req.ContactEmail,
-		ProjectNotes: strings.TrimSpace(req.ProjectNotes),
+		UserID:            userID,
+		ServiceID:         svc.ID,
+		PackageID:         pkg.ID,
+		ServiceName:       svc.Name,
+		PackageName:       pkg.Name,
+		PriceUSD:          pkg.PriceUSD,
+		ContactName:       req.ContactName,
+		ContactEmail:      req.ContactEmail,
+		ContactPhone:      req.ContactPhone,
+		ContactAddress:    req.ContactAddress,
+		ContactPostalCode: req.ContactPostalCode,
+		ProjectNotes:      strings.TrimSpace(req.ProjectNotes),
 	})
 	if err != nil {
 		log.Printf("handleCreateServiceOrder: CreateServiceOrder: %v", err)

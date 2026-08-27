@@ -188,7 +188,7 @@ function renderOrders() {
       <td>${escapeHTML(o.serviceName)}</td>
       <td>${escapeHTML(o.packageName)}</td>
       <td>$${o.priceUsd}</td>
-      <td>${escapeHTML(o.contactName)}<br><span class="muted">${escapeHTML(o.contactEmail)}</span></td>
+      <td>${escapeHTML(o.contactName)}<br><span class="muted">${escapeHTML(o.contactEmail)}</span><br><span class="muted">${escapeHTML(o.contactPhone)}</span><br><span class="muted">${escapeHTML(o.contactAddress)} ${escapeHTML(o.contactPostalCode)}</span></td>
       <td style="white-space:normal;max-width:220px;">${escapeHTML(o.projectNotes) || '<span class="muted">—</span>'}</td>
       <td></td>
     `;
