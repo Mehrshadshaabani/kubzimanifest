@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>احجز استشارة — Cubzi</title>
+<meta name="description" content="أخبرنا بما تبنيه أو تواجه فيه مشكلة — Kubernetes أو DevOps أو المعمارية — وسنتابع معك عبر واتساب.">
+<link rel="canonical" href="https://cubzi.cloud/ar/consulting">
+<link rel="alternate" hreflang="en" href="https://cubzi.cloud/consulting">
+<link rel="alternate" hreflang="ar" href="https://cubzi.cloud/ar/consulting">
+<link rel="alternate" hreflang="x-default" href="https://cubzi.cloud/consulting">
+<meta name="robots" content="index, follow">
+<meta name="keywords" content="استشاري kubernetes, استشارة devops, احجز استشارة مجانية, استشارات بنية تحتية سحابية">
+<meta property="og:type" content="website">
+<meta property="og:title" content="احجز استشارة — Cubzi">
+<meta property="og:description" content="أخبرنا بما تبنيه أو تواجه فيه مشكلة — Kubernetes أو DevOps أو المعمارية — وسنتابع معك عبر واتساب.">
+<meta property="og:url" content="https://cubzi.cloud/ar/consulting">
+<meta property="og:image" content="https://cubzi.cloud/images/og-consulting.png">
+<meta property="og:locale" content="ar_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/images/og-consulting.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Tajawal',-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:var(--info)}
+.wrap{max-width:640px;margin:0 auto;padding:0 1.5rem}
+nav{border-bottom:1px solid var(--border);padding:1rem 0}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;max-width:1080px}
+.logo{font-weight:700;font-size:1.15rem;text-decoration:none;color:var(--text);direction:ltr}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:.9rem;margin-right:1.1rem}
+.navlinks a:hover{color:var(--text)}
+.lang-switch{font-size:.8rem;border:1px solid var(--border);border-radius:999px;padding:.25rem .7rem;direction:ltr}
+@media(max-width:640px){.navlinks{display:none}}
+.dash-nav{display:none;border-bottom:1px solid var(--border);background:var(--panel)}
+.dash-nav.open{display:block}
+.dash-nav .wrap{max-width:1080px;display:flex;align-items:center;gap:.25rem;padding:.6rem 1.5rem;flex-wrap:wrap}
+.dash-nav a{color:var(--muted);text-decoration:none;font-size:.85rem;padding:.4rem .7rem;border-radius:6px}
+.dash-nav a:hover{color:var(--text);background:var(--panel-2)}
+.dash-nav a.active{color:var(--accent);background:var(--accent-dim);font-weight:600}
+.dash-nav button{margin-right:auto;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:.4rem .8rem;font-size:.82rem;cursor:pointer}
+header.hero{padding:3.5rem 0 2rem;text-align:center}
+header.hero h1{font-size:1.9rem;margin:0 0 .75rem}
+header.hero p{color:var(--muted);font-size:1.03rem;max-width:520px;margin:0 auto}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin:0 0 3rem}
+label{display:block;font-size:.86rem;color:var(--muted);margin:1rem 0 .35rem}
+label:first-child{margin-top:0}
+input,textarea,select{width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:.65rem .8rem;font-size:.94rem;font-family:inherit}
+textarea{min-height:110px;resize:vertical}
+.submit{width:100%;margin-top:1.4rem;background:#25D366;border:1px solid #25D366;color:#04170a;font-weight:700;border-radius:7px;padding:.75rem;font-size:.96rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.submit svg{width:1.1rem;height:1.1rem}
+.submit:disabled{opacity:.6;cursor:default}
+.err{color:#f85149;font-size:.86rem;margin-top:.7rem;display:none}
+.note{color:var(--muted);font-size:.8rem;margin-top:.9rem;text-align:center}
+footer{border-top:1px solid var(--border);padding:2rem 0;color:var(--muted);font-size:.84rem}
+footer .wrap{max-width:1080px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/ar/">Cubzi</a>
+    <div class="navlinks">
+      <a href="/ar/#features">المزايا</a>
+      <a href="/ar/services">الخدمات</a>
+      <a href="/ar/consulting">استشارة</a>
+      <a href="/blog">المدونة</a>
+      <a class="lang-switch" href="/consulting">English</a>
+      <a href="/login">افتح الأداة</a>
+    </div>
+  </div>
+</nav>
+
+<div class="dash-nav" id="dashNav">
+  <div class="wrap">
+    <a href="/app">أداة الفحص</a>
+    <a href="/ar/services">الخدمات</a>
+    <a href="/ar/consulting" class="active">استشارة</a>
+    <a href="/admin" id="adminTabLink" style="display:none">الإدارة</a>
+    <button id="dashSignout">تسجيل الخروج</button>
+  </div>
+</div>
+
+<header class="hero wrap">
+  <h1>لست متأكداً من الحزمة المناسبة؟ لنتحدث.</h1>
+  <p>أخبرنا بما تبنيه أو المشكلة التي تواجهها، وسنرد عبر واتساب — عادةً في نفس اليوم — بإجابة مباشرة، لا نص مبيعات جاهز.</p>
+</header>
+
+<main class="wrap">
+  <div class="card">
+    <label for="name">الاسم</label>
+    <input type="text" id="name" placeholder="مثال: أحمد محمد">
+    <label for="email">البريد الإلكتروني</label>
+    <input type="text" id="email" placeholder="ahmed@company.com">
+    <label for="message">ما الذي تحتاج مساعدة فيه؟</label>
+    <textarea id="message" placeholder="مثال: لدينا كلاستر على EKS يتعطل باستمرار خلال ذروة الحركة، ولا توجد مراقبة."></textarea>
+    <button class="submit" id="submitBtn">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.1c-.24.68-1.4 1.3-1.93 1.35-.53.06-1.03.27-3.44-.72-2.9-1.19-4.76-4.15-4.9-4.34-.14-.19-1.17-1.56-1.17-2.98s.74-2.11 1-2.4c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.14.07.15.12.32.02.51-.1.19-.15.3-.29.47-.15.17-.31.37-.44.5-.15.15-.3.31-.13.6.17.29.76 1.26 1.64 2.04 1.13 1 2.08 1.32 2.37 1.47.29.15.46.12.63-.07.17-.19.72-.84.92-1.13.19-.29.38-.24.64-.14.26.1 1.66.78 1.94.93.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+      المتابعة عبر واتساب
+    </button>
+    <p class="err" id="errEl"></p>
+    <p class="note">الإرسال يفتح واتساب مع رسالتك جاهزة إلى ‎+44 7346 473123. بلا دفع، بلا التزام.</p>
+  </div>
+
+  <p class="note" style="margin-top:-2rem;margin-bottom:2rem;">تبحث عن حزمة بسعر ثابت بدلاً من ذلك؟ راجع <a href="/ar/services">خدمات Kubernetes وDevOps</a>.</p>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Cubzi — فحص Kubernetes وتقدير التكلفة قبل النشر، والخدمات أعلاه.</p>
+    <div><a href="/ar/">الرئيسية</a> &middot; <a href="/ar/about">من نحن</a> &middot; <a href="/ar/services">الخدمات</a> &middot; <a href="/ar/contact">تواصل معنا</a> &middot; <a href="/ar/privacy">الخصوصية</a></div>
+  </div>
+</footer>
+
+<script>
+const TOKEN_KEY = 'mflint_token';
+const getToken = () => localStorage.getItem(TOKEN_KEY);
+const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+
+const dashNav = document.getElementById('dashNav');
+const adminTabLink = document.getElementById('adminTabLink');
+const dashSignout = document.getElementById('dashSignout');
+
+(async function initDashNav() {
+  const token = getToken();
+  if (!token) return;
+  dashNav.classList.add('open');
+  try {
+    const res = await fetch('/v1/admin/whoami', { headers: { Authorization: 'Bearer ' + token } });
+    if (res.ok) adminTabLink.style.display = 'inline-block';
+  } catch (err) { /* not admin or network hiccup; leave hidden */ }
+})();
+dashSignout.addEventListener('click', () => { clearToken(); location.href = '/app'; });
+
+const nameEl = document.getElementById('name');
+const emailEl = document.getElementById('email');
+const messageEl = document.getElementById('message');
+const submitBtn = document.getElementById('submitBtn');
+const errEl = document.getElementById('errEl');
+
+submitBtn.addEventListener('click', async () => {
+  const name = nameEl.value.trim();
+  const email = emailEl.value.trim();
+  const message = messageEl.value.trim();
+  errEl.style.display = 'none';
+  if (!name || !email) {
+    errEl.textContent = 'الاسم والبريد الإلكتروني مطلوبان.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  try {
+    const token = getToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    await fetch('/v1/consultations', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ name, email, message }),
+    });
+  } catch (err) {
+    // حتى لو فشل تسجيل الطلب، أرسل المستخدم إلى واتساب — فذلك ما يهمه فعلاً.
+  }
+
+  const waText = `مرحباً، أنا ${name} (${email}). ${message || 'أرغب في التحدث حول مشروع Kubernetes/DevOps.'}`;
+  window.location.href = 'https://wa.me/447346473123?text=' + encodeURIComponent(waText);
+});
+</script>
+
+</body>
+</html>

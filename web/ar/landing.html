@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cubzi — فحص Kubernetes manifest وتقدير التكلفة</title>
+<meta name="description" content="تفحص Cubzi ملفات Kubernetes (manifests) بحثاً عن مشاكل الأمان والموثوقية، وتقدّر تكلفتها السحابية الشهرية، قبل النشر. لا حاجة لعميل داخل الكلاستر — الصق الملف أو شغّل CLI في CI.">
+<link rel="canonical" href="https://cubzi.cloud/ar/">
+<link rel="alternate" hreflang="en" href="https://cubzi.cloud/">
+<link rel="alternate" hreflang="ar" href="https://cubzi.cloud/ar/">
+<link rel="alternate" hreflang="x-default" href="https://cubzi.cloud/">
+<meta name="robots" content="index, follow">
+<meta name="keywords" content="فحص كوبرنيتيز, kubernetes manifest linter بالعربي, تقدير تكلفة كوبرنيتيز, أمان kubernetes, خدمات ديف اوبس, استشارات كوبرنيتيز, نشر كوبرنيتيز, kubernetes للشركات العربية">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cubzi">
+<meta property="og:title" content="Cubzi — فحص Kubernetes manifest وتقدير التكلفة">
+<meta property="og:description" content="افحص ملفات Kubernetes بحثاً عن مشاكل الأمان والموثوقية، وقدّر تكلفتها السحابية الشهرية، قبل النشر.">
+<meta property="og:url" content="https://cubzi.cloud/ar/">
+<meta property="og:image" content="https://cubzi.cloud/images/og-home.png">
+<meta property="og:locale" content="ar_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cubzi — فحص Kubernetes manifest وتقدير التكلفة">
+<meta name="twitter:description" content="افحص ملفات Kubernetes بحثاً عن مشاكل الأمان والموثوقية، وقدّر تكلفتها السحابية الشهرية، قبل النشر.">
+<meta name="twitter:image" content="https://cubzi.cloud/images/og-home.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Cubzi",
+  "url": "https://cubzi.cloud/ar/",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "inLanguage": "ar",
+  "description": "تفحص Cubzi ملفات Kubernetes بحثاً عن مشاكل الأمان والموثوقية، وتقدّر تكلفتها السحابية الشهرية، قبل النشر.",
+  "offers": [
+    { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD" },
+    { "@type": "Offer", "name": "Team", "price": "19", "priceCurrency": "USD" },
+    { "@type": "Offer", "name": "Pro", "price": "49", "priceCurrency": "USD" }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #0b0f14;
+    --bg-alt: #0e141c;
+    --panel: #121821;
+    --panel-2: #161d28;
+    --border: #232b36;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --critical: #f85149;
+    --warning: #d29922;
+    --info: #58a6ff;
+    --accent: #3fb950;
+    --accent-dim: rgba(63, 185, 80, 0.12);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: 'Tajawal', -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 2rem; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; direction: ltr; unicode-bidi: embed; }
+
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(11, 15, 20, 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; }
+  .logo { font-weight: 700; font-size: 1.15rem; text-decoration: none; direction: ltr; }
+  .navlinks { display: flex; align-items: center; gap: 1.5rem; font-size: 0.92rem; }
+  .navlinks a { text-decoration: none; color: var(--muted); }
+  .navlinks a:hover { color: var(--text); }
+  .lang-switch { font-size: 0.82rem; border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.8rem; direction: ltr; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.65rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.92rem; font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: #04170a; }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-secondary { background: var(--panel); color: var(--text); border-color: var(--border); }
+  .btn-secondary:hover { border-color: var(--muted); }
+
+  header.hero { padding: 5rem 0 4rem; text-align: center; }
+  header.hero h1 {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    line-height: 1.35;
+    margin: 0 0 1.1rem;
+  }
+  header.hero .accent-text { color: var(--accent); }
+  header.hero p.lead {
+    color: var(--muted);
+    font-size: 1.1rem;
+    max-width: 640px;
+    margin: 0 auto 2rem;
+  }
+  .hero-ctas { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
+  .hero-note { margin-top: 1rem; color: var(--muted); font-size: 0.8rem; }
+
+  .slider-section { padding: 0 0 1rem; }
+  .slider { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); background: #060907; direction: ltr; }
+  .slider-track { display: flex; transition: transform 0.6s ease; direction: ltr; }
+  .slide { flex: 0 0 100%; display: block; line-height: 0; }
+  .slide img { width: 100%; height: auto; display: block; }
+  .slider-dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.9rem; }
+  .slider-dots button { width: 8px; height: 8px; padding: 0; border-radius: 999px; border: none; background: var(--border); cursor: pointer; }
+  .slider-dots button.active { background: var(--accent); width: 22px; transition: width 0.25s ease; }
+
+  section { padding: 3.5rem 0; }
+  section.alt { background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  h2 { font-size: 1.6rem; margin: 0 0 0.5rem; }
+  .section-lead { color: var(--muted); max-width: 620px; margin: 0 0 2.2rem; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .card h3 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+  .card .icon {
+    width: 2.25rem; height: 2.25rem; border-radius: 8px;
+    background: var(--accent-dim); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 0.9rem;
+  }
+
+  .rule-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .rule-list li {
+    display: flex; gap: 0.6rem; align-items: baseline;
+    font-size: 0.9rem; color: var(--muted);
+  }
+  .rule-list .sev {
+    flex-shrink: 0;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.03em;
+    padding: 0.15rem 0.45rem; border-radius: 999px; border: 1px solid;
+  }
+  .sev.critical { color: var(--critical); border-color: var(--critical); }
+  .sev.warning { color: var(--warning); border-color: var(--warning); }
+  .rule-list code { color: var(--text); }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; counter-reset: step; }
+  .step { position: relative; padding-right: 2.6rem; }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; right: 0; top: 0;
+    width: 1.9rem; height: 1.9rem; border-radius: 50%;
+    background: var(--accent-dim); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem;
+  }
+  .step h3 { margin: 0 0 0.4rem; font-size: 1rem; }
+  .step p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+  pre.snippet {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.2rem; font-size: 0.82rem; overflow-x: auto; color: #c9d1d9;
+    margin: 0; direction: ltr; text-align: left;
+  }
+
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; align-items: stretch; }
+  .plan {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem 1.5rem;
+    display: flex; flex-direction: column;
+  }
+  .plan.featured { border-color: var(--accent); background: linear-gradient(180deg, var(--accent-dim), var(--panel) 45%); }
+  .plan .badge {
+    align-self: flex-start;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+    color: var(--accent); background: var(--accent-dim);
+    padding: 0.2rem 0.55rem; border-radius: 999px; margin-bottom: 0.8rem;
+  }
+  .plan h3 { margin: 0; font-size: 1.05rem; }
+  .plan .price { font-size: 2rem; font-weight: 700; margin: 0.5rem 0 0.2rem; direction: ltr; }
+  .plan .price span { font-size: 0.95rem; font-weight: 500; color: var(--muted); }
+  .plan .plan-note { color: var(--muted); font-size: 0.84rem; margin: 0 0 1.25rem; }
+  .plan ul { list-style: none; padding: 0; margin: 0 0 1.5rem; display: grid; gap: 0.55rem; flex: 1; }
+  .plan li { font-size: 0.88rem; color: var(--text); display: flex; gap: 0.5rem; }
+  .plan li::before { content: "✓"; color: var(--accent); flex-shrink: 0; }
+  .plan .btn { width: 100%; }
+  .pricing-note { color: var(--muted); font-size: 0.8rem; margin-top: 1.5rem; text-align: center; }
+
+  footer { padding: 2.5rem 0 3rem; border-top: 1px solid var(--border); }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  footer p { color: var(--muted); font-size: 0.82rem; margin: 0; }
+  footer .foot-links { display: flex; gap: 1.25rem; font-size: 0.85rem; flex-wrap: wrap; }
+  footer .foot-links a { color: var(--muted); text-decoration: none; }
+  footer .foot-links a:hover { color: var(--text); }
+
+  @media (max-width: 820px) {
+    .grid-3, .steps, .pricing-grid { grid-template-columns: 1fr; }
+    .navlinks { display: none; }
+  }
+
+  .whatsapp-fab {
+    position: fixed; left: 1.25rem; bottom: 1.25rem; z-index: 20;
+    width: 3.25rem; height: 3.25rem; border-radius: 50%;
+    background: #25D366; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    text-decoration: none;
+  }
+  .whatsapp-fab:hover { filter: brightness(1.05); }
+  .whatsapp-fab svg { width: 1.6rem; height: 1.6rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/ar/">Cubzi</a>
+    <div class="navlinks">
+      <a href="#features">المزايا</a>
+      <a href="#pricing">الأسعار</a>
+      <a href="#how">آلية العمل</a>
+      <a href="/ar/services">الخدمات</a>
+      <a href="/ar/consulting">استشارة</a>
+      <a href="/ar/docs">توثيق API</a>
+      <a class="lang-switch" href="/">English</a>
+      <a class="btn btn-secondary" href="/login">افتح الأداة</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>اعرف تكلفة الـ manifest<br>وأين يكون <span class="accent-text">غير آمن</span> — قبل أن تنشره.</h1>
+    <p class="lead">
+      تفحص Cubzi ملفات Kubernetes (manifests) وفق ١٣ قاعدة أمان وموثوقية، وتقدّر تكلفتها السحابية الشهرية، في تقرير واحد.
+      بلا عميل يُثبَّت داخل الكلاستر — سجّل الدخول عبر Google أو GitHub والصق الملف.
+    </p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="/login">افحص ملفاً مجاناً ←</a>
+      <a class="btn btn-secondary" href="#pricing">مشاهدة الأسعار</a>
+    </div>
+    <p class="hero-note">فحص مباشر في المتصفح · CLI لبيئات CI · GitHub Action لتعليقات الـ PR</p>
+  </div>
+</header>
+
+<section class="slider-section">
+  <div class="wrap">
+    <div class="slider" id="slider">
+      <div class="slider-track" id="sliderTrack">
+        <a class="slide" href="/login" aria-label="تحقق من ملفات Kubernetes قبل النشر">
+          <img src="/images/banner-1-validate.png" alt="تحقق من ملفات Kubernetes الخاصة بك قبل النشر — اكتشف المشاكل، حسّن الموثوقية، ابنِ بثقة" loading="eager" width="744" height="352">
+        </a>
+        <a class="slide" href="/login" aria-label="تقدير دقيق لتكلفة أحمال عمل Kubernetes">
+          <img src="/images/banner-2-cost.png" alt="تقدير دقيق لتكلفة أحمال عمل Kubernetes عبر AWS وGoogle Cloud وAzure" loading="lazy" width="744" height="352">
+        </a>
+        <a class="slide" href="/ar/docs" aria-label="أدوات DevOps جاهزة لفرق التطوير الحديثة">
+          <img src="/images/banner-3-devops.png" alt="أدوات DevOps جاهزة لفرق التطوير الحديثة — CLI وGitHub Action وأداة ويب" loading="lazy" width="744" height="352">
+        </a>
+        <a class="slide" href="/ar/services" aria-label="سحابة أذكى، برمجيات أقوى — خدمات Kubernetes وDevOps">
+          <img src="/images/banner-4-services.png" alt="سحابة أذكى، برمجيات أقوى — بنية تحتية سحابية وخدمات تطوير برمجيات لأعمالك" loading="lazy" width="744" height="352">
+        </a>
+      </div>
+    </div>
+    <div class="slider-dots" id="sliderDots"></div>
+  </div>
+</section>
+
+<section id="platform" class="alt">
+  <div class="wrap">
+    <h2>منصة واحدة، أكثر من مجرد أداة فحص</h2>
+    <p class="section-lead">
+      بدأت Cubzi كأداة فحص لملفات Kubernetes. تطوّرت لتصبح المكان الذي نقدّم فيه الأداة المجانية والعمل التطبيقي
+      في Kubernetes وDevOps خلفها — مع المزيد من الأدوات في الطريق.
+    </p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">🧪</div>
+        <h3>أداة الفحص</h3>
+        <p>فحوصات أمان وموثوقية، وتقدير تكلفة شهري لأي manifest. مجانية للبدء.</p>
+        <a class="btn btn-secondary" href="/login" style="margin-top:1rem;display:inline-block;">افحص ملفاً ←</a>
+      </div>
+      <div class="card">
+        <div class="icon">☁️</div>
+        <h3>خدمات Kubernetes وDevOps</h3>
+        <p>إعداد الكلاستر، تشغيل مُدار، تدقيقات أمنية، تصميم معماري — بأسعار ثابتة.</p>
+        <a class="btn btn-secondary" href="/ar/services" style="margin-top:1rem;display:inline-block;">مشاهدة الخدمات ←</a>
+      </div>
+      <div class="card">
+        <div class="icon">🧩</div>
+        <h3>أدوات جديدة — قيد التطوير</h3>
+        <p>نبني المزيد من أدوات Kubernetes على المنصة ذاتها. تحدّث معنا عمّا تحتاجه.</p>
+        <a class="btn btn-secondary" href="/ar/consulting" style="margin-top:1rem;display:inline-block;">تواصل معنا ←</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>الفجوة بين أداة الفحص وحاسبة التكلفة</h2>
+    <p class="section-lead">
+      أدوات الفحص السياسي مثل kube-linter وPolaris تتجاهل التكلفة. أدوات التكلفة مثل Infracost تحلّل Terraform،
+      لا ملفات Kubernetes الخام. تجمع Cubzi بين الاثنين، قبل النشر، على ملف الـ YAML الفعلي الذي ستطبّقه.
+    </p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">🛡</div>
+        <h3>فحص الأمان والموثوقية</h3>
+        <p>١٣ قاعدة تغطي Deployments وStatefulSets وServices وIngress وPVCs وغيرها — كل واحدة مع حل بلغة واضحة.</p>
+      </div>
+      <div class="card">
+        <div class="icon">💵</div>
+        <h3>تقدير التكلفة الشهرية</h3>
+        <p>يقرأ طلبات CPU/memory وعدد النسخ، ويسعّرها مقابل AWS أو GCP أو Azure — تقدير موسوم بوضوح، لا فاتورة.</p>
+      </div>
+      <div class="card">
+        <div class="icon">⚙️</div>
+        <h3>CLI + GitHub Action</h3>
+        <p>شغّله محلياً، أو اربطه بـ CI لإيقاف أي نتيجة CRITICAL، أو احصل على التقرير كاملاً كتعليق تلقائي على الـ PR.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>عيّنة مما تكتشفه</h2>
+    <p class="section-lead">أربع فحوصات CRITICAL، وست فحوصات WARNING، وثلاث فحوصات INFO — كل قاعدة تأتي مع الحل الدقيق.</p>
+    <div class="grid-3">
+      <div class="card">
+        <ul class="rule-list">
+          <li><span class="sev critical">CRIT</span> الحاوية قد تعمل بصلاحية root</li>
+          <li><span class="sev critical">CRIT</span> حاوية privileged</li>
+          <li><span class="sev critical">CRIT</span> سر (Secret) مكتوب مباشرة في متغير بيئة</li>
+          <li><span class="sev critical">CRIT</span> تفعيل hostNetwork / hostPID / hostIPC</li>
+        </ul>
+      </div>
+      <div class="card">
+        <ul class="rule-list">
+          <li><span class="sev warning">WARN</span> غياب طلبات/حدود cpu أو memory</li>
+          <li><span class="sev warning">WARN</span> غياب فحوصات liveness/readiness</li>
+          <li><span class="sev warning">WARN</span> لا يوجد PodDisruptionBudget لأحمال العمل متعددة النسخ</li>
+        </ul>
+      </div>
+      <div class="card">
+        <ul class="rule-list">
+          <li><span class="sev warning">WARN</span> وسم الصورة غير مثبّت (<code>latest</code>)</li>
+          <li><span class="sev warning">WARN</span> لا يوجد NetworkPolicy في الـ namespace</li>
+          <li><span class="sev warning">WARN</span> الـ Deployment بلا عدد نسخ محدد</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>آلية العمل</h2>
+    <p class="section-lead">لا عميل يُثبَّت على الكلاستر. المُدخل ملف YAML، والمُخرج تقرير.</p>
+    <div class="steps">
+      <div class="step">
+        <h3>الصق الملف أو أشر إليه</h3>
+        <p>استخدم أداة الويب، أو شغّل الـ CLI على ملف أو مجلد كامل.</p>
+      </div>
+      <div class="step">
+        <h3>احصل على تقرير</h3>
+        <p>كل مخالفة مع درجة خطورتها، والمورد الذي تخصه، وطريقة إصلاحها — إضافة لنطاق تكلفة شهري.</p>
+      </div>
+      <div class="step">
+        <h3>اربطه بخط الأنابيب (Pipeline)</h3>
+        <p>يخرج الـ CLI بخطأ عند أي نتيجة CRITICAL؛ ويعلّق GitHub Action بالتقرير على الـ PR.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>أضفه إلى CI</h2>
+    <p class="section-lead">يبني GitHub Action الـ CLI ويشغّله، ثم ينشر (ويحدّث) تعليقاً واحداً على الـ PR بالتقرير الكامل.</p>
+    <pre class="snippet">- uses: Mehrshadshaabani/kubzimanifest@v1
+  with:
+    path: ./manifests
+    cloud: aws</pre>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>ماذا تغطي الخدمات</h2>
+    <p class="section-lead">
+      عيّنة من الحزم الست في <a href="/ar/services">/ar/services</a> — إعداد Kubernetes، وDevOps كخدمة،
+      وتدقيقات أمنية، وتشغيل مُدار، وتصميم معماري، كل منها بأسعار ثابتة أو نطاق مخصّص للمشاريع الكبرى.
+    </p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">☁️</div>
+        <h3>إعداد Kubernetes</h3>
+        <p>سحابياً (EKS/GKE/AKS) أو محلياً On-Premises، من كلاستر واحد إلى إعداد HA متعدد العقد — تبدأ من ٦٩٩$.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔁</div>
+        <h3>DevOps كخدمة</h3>
+        <p>CI/CD، Infrastructure as Code، مراقبة، ودعم مباشر شهرياً — تبدأ من ٤٩٠$/شهرياً.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📐</div>
+        <h3>تصميم معماري</h3>
+        <p>مراجعة نظامك الحالي، أو تصميم قابل للتوسع من الصفر — يبدأ من ٥٩٠$.</p>
+      </div>
+    </div>
+    <div class="hero-ctas" style="margin-top:2rem;">
+      <a class="btn btn-primary" href="/ar/services">مشاهدة كل الخدمات والأسعار ←</a>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2>الأسعار</h2>
+    <p class="section-lead">سجّل الدخول عبر Google أو GitHub لاستخدام أداة الويب — مجانية، بنقرة واحدة، وتفتح سجل التقارير المحفوظة. الـ CLI يعمل بلا تسجيل دخول إطلاقاً.</p>
+    <div class="pricing-grid">
+      <div class="plan">
+        <span class="badge">مجانية</span>
+        <h3>الخطة المجانية</h3>
+        <p class="price">$0 <span>/ شهرياً</span></p>
+        <p class="plan-note">للتجربة أو الاستخدام العرضي</p>
+        <ul>
+          <li>٥٠ فحصاً شهرياً، بتسجيل الدخول عبر Google أو GitHub</li>
+          <li>فحوصات غير محدودة عبر CLI، بلا تسجيل دخول</li>
+          <li>الـ CLI يعمل في أي خط أنابيب CI</li>
+        </ul>
+        <a class="btn btn-secondary" href="/login">ابدأ مجاناً</a>
+      </div>
+      <div class="plan featured">
+        <span class="badge">الأكثر شيوعاً</span>
+        <h3>Team</h3>
+        <p class="price">$19 <span>/ شهرياً</span></p>
+        <p class="plan-note">للفرق التي تشغّله بانتظام في CI</p>
+        <ul>
+          <li>١٬٠٠٠ فحص شهرياً</li>
+          <li>سجل تقارير محفوظ</li>
+          <li>تعليقات GitHub Action على الـ PR</li>
+        </ul>
+        <a class="btn btn-primary" href="/login">الترقية إلى Team</a>
+      </div>
+      <div class="plan">
+        <span class="badge">Pro</span>
+        <h3>Pro</h3>
+        <p class="price">$49 <span>/ شهرياً</span></p>
+        <p class="plan-note">للوكالات والاستخدام الكثيف للـ API</p>
+        <ul>
+          <li>فحوصات غير محدودة</li>
+          <li>سجل تقارير محفوظ</li>
+          <li>دعم ذو أولوية</li>
+        </ul>
+        <a class="btn btn-secondary" href="/login">الترقية إلى Pro</a>
+      </div>
+    </div>
+    <p class="pricing-note">أزرار الترقية لخطتي Team وPro تأخذك لتسجيل الدخول عبر Google أو GitHub، ثم اضغط "ترقية" داخل الأداة للدفع بالعملة الرقمية.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Cubzi — فحص ملفات Kubernetes وتقدير التكلفة قبل النشر. أرقام التكلفة تقديرات بأسعار القائمة، وليست فاتورة مضمونة.</p>
+    <div class="foot-links">
+      <a href="/login">افتح الأداة</a>
+      <a href="/ar/services">الخدمات</a>
+      <a href="/ar/consulting">استشارة</a>
+      <a href="/ar/docs">توثيق API</a>
+      <a href="#pricing">الأسعار</a>
+      <a href="/ar/about">من نحن</a>
+      <a href="/ar/contact">تواصل معنا</a>
+      <a href="/ar/privacy">الخصوصية</a>
+    </div>
+  </div>
+</footer>
+
+<a class="whatsapp-fab" href="https://wa.me/447346473123" target="_blank" rel="noopener" aria-label="تواصل معنا عبر واتساب">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.1c-.24.68-1.4 1.3-1.93 1.35-.53.06-1.03.27-3.44-.72-2.9-1.19-4.76-4.15-4.9-4.34-.14-.19-1.17-1.56-1.17-2.98s.74-2.11 1-2.4c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.14.07.15.12.32.02.51-.1.19-.15.3-.29.47-.15.17-.31.37-.44.5-.15.15-.3.31-.13.6.17.29.76 1.26 1.64 2.04 1.13 1 2.08 1.32 2.37 1.47.29.15.46.12.63-.07.17-.19.72-.84.92-1.13.19-.29.38-.24.64-.14.26.1 1.66.78 1.94.93.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+</a>
+
+<script>
+(function () {
+  const track = document.getElementById('sliderTrack');
+  const dotsWrap = document.getElementById('sliderDots');
+  const slides = track.children.length;
+  let i = 0;
+  let timer;
+
+  for (let n = 0; n < slides; n++) {
+    const dot = document.createElement('button');
+    dot.setAttribute('aria-label', 'انتقل إلى الشريحة ' + (n + 1));
+    dot.addEventListener('click', () => goTo(n));
+    dotsWrap.appendChild(dot);
+  }
+
+  function render() {
+    track.style.transform = 'translateX(-' + (i * 100) + '%)';
+    [...dotsWrap.children].forEach((d, n) => d.classList.toggle('active', n === i));
+  }
+  function goTo(n) {
+    i = n;
+    render();
+    restart();
+  }
+  function next() {
+    i = (i + 1) % slides;
+    render();
+  }
+  function restart() {
+    clearInterval(timer);
+    timer = setInterval(next, 4500);
+  }
+
+  render();
+  restart();
+  document.getElementById('slider').addEventListener('mouseenter', () => clearInterval(timer));
+  document.getElementById('slider').addEventListener('mouseleave', restart);
+})();
+</script>
+
+</body>
+</html>

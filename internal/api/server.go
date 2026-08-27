@@ -97,6 +97,19 @@ func (s *Server) Router() http.Handler {
 		r.Get("/about", s.serveWebFile("about.html"))
 		r.Get("/contact", s.serveWebFile("contact.html"))
 		r.Get("/admin", s.serveWebFile("admin.html"))
+
+		// Arabic translations of the core marketing/product pages (see
+		// web/ar/*.html) — same functionality, served under an /ar/ prefix
+		// per standard multilingual-SEO practice (hreflang tags on both
+		// language's pages point at each other; see sitemap.xml).
+		r.Get("/ar/", s.serveWebFile("ar/landing.html"))
+		r.Get("/ar/services", s.serveWebFile("ar/services.html"))
+		r.Get("/ar/consulting", s.serveWebFile("ar/consulting.html"))
+		r.Get("/ar/about", s.serveWebFile("ar/about.html"))
+		r.Get("/ar/contact", s.serveWebFile("ar/contact.html"))
+		r.Get("/ar/privacy", s.serveWebFile("ar/privacy.html"))
+		r.Get("/ar/docs", s.serveWebFile("ar/docs.html"))
+
 		r.Get("/blog", s.serveWebFile("blog.html"))
 		// Registered before "/blog/{slug}" — chi matches this literal path
 		// prefix ahead of the param route below for the "images" segment,

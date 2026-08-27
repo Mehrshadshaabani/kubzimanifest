@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>خدمات Kubernetes وDevOps — Cubzi</title>
+<meta name="description" content="إعداد Kubernetes سحابياً ومحلياً، DevOps كخدمة، وتصميم معماري قابل للتوسع — من نفس الفريق الذي يبني Cubzi.">
+<link rel="canonical" href="https://cubzi.cloud/ar/services">
+<link rel="alternate" hreflang="en" href="https://cubzi.cloud/services">
+<link rel="alternate" hreflang="ar" href="https://cubzi.cloud/ar/services">
+<link rel="alternate" hreflang="x-default" href="https://cubzi.cloud/services">
+<meta name="robots" content="index, follow">
+<meta name="keywords" content="خدمات كوبرنيتيز, إعداد كلاستر kubernetes, نشر kubernetes محلي, devops كخدمة, تدقيق أمان kubernetes, kubernetes مُدار, تصميم معماري, استشاري kubernetes">
+<meta property="og:type" content="website">
+<meta property="og:title" content="خدمات Kubernetes وDevOps — Cubzi">
+<meta property="og:description" content="إعداد Kubernetes سحابياً ومحلياً، DevOps كخدمة، وتصميم معماري قابل للتوسع.">
+<meta property="og:url" content="https://cubzi.cloud/ar/services">
+<meta property="og:image" content="https://cubzi.cloud/images/og-services.png">
+<meta property="og:locale" content="ar_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/images/og-services.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    { "@type": "Service", "position": 1, "name": "إعداد Kubernetes السحابي والترحيل", "provider": {"@type": "Organization", "name": "Cubzi"}, "areaServed": "Worldwide", "url": "https://cubzi.cloud/ar/services" },
+    { "@type": "Service", "position": 2, "name": "نشر Kubernetes محلياً", "provider": {"@type": "Organization", "name": "Cubzi"}, "areaServed": "Worldwide", "url": "https://cubzi.cloud/ar/services" },
+    { "@type": "Service", "position": 3, "name": "DevOps كخدمة", "provider": {"@type": "Organization", "name": "Cubzi"}, "areaServed": "Worldwide", "url": "https://cubzi.cloud/ar/services" },
+    { "@type": "Service", "position": 4, "name": "تدقيق أمان Kubernetes وتحصينه", "provider": {"@type": "Organization", "name": "Cubzi"}, "areaServed": "Worldwide", "url": "https://cubzi.cloud/ar/services" },
+    { "@type": "Service", "position": 5, "name": "Kubernetes مُدار", "provider": {"@type": "Organization", "name": "Cubzi"}, "areaServed": "Worldwide", "url": "https://cubzi.cloud/ar/services" },
+    { "@type": "Service", "position": 6, "name": "تصميم معماري قابل للتوسع", "provider": {"@type": "Organization", "name": "Cubzi"}, "areaServed": "Worldwide", "url": "https://cubzi.cloud/ar/services" }
+  ]
+}
+</script>
+<style>
+:root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Tajawal',-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:var(--info)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.5rem}
+nav{border-bottom:1px solid var(--border);padding:1rem 0}
+nav .wrap{display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:700;font-size:1.15rem;text-decoration:none;color:var(--text);direction:ltr}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:.9rem;margin-right:1.1rem}
+.navlinks a:hover{color:var(--text)}
+.lang-switch{font-size:.8rem;border:1px solid var(--border);border-radius:999px;padding:.25rem .7rem;direction:ltr}
+@media(max-width:640px){.navlinks{display:none}}
+.dash-nav{display:none;border-bottom:1px solid var(--border);background:var(--panel)}
+.dash-nav.open{display:block}
+.dash-nav .wrap{display:flex;align-items:center;gap:.25rem;padding:.6rem 1.5rem;flex-wrap:wrap}
+.dash-nav a{color:var(--muted);text-decoration:none;font-size:.85rem;padding:.4rem .7rem;border-radius:6px}
+.dash-nav a:hover{color:var(--text);background:var(--panel-2)}
+.dash-nav a.active{color:var(--accent);background:var(--accent-dim);font-weight:600}
+.dash-nav button{margin-right:auto;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:.4rem .8rem;font-size:.82rem;cursor:pointer}
+header.hero{padding:3.5rem 0 2.5rem;text-align:center}
+header.hero h1{font-size:2rem;margin:0 0 .75rem}
+header.hero p{color:var(--muted);font-size:1.05rem;max-width:640px;margin:0 auto}
+.services{padding:0 0 3rem;display:grid;gap:2.5rem}
+.service{border-top:1px solid var(--border);padding-top:2rem}
+.service-head{margin-bottom:1.25rem}
+.service-head h2{font-size:1.4rem;margin:0 0 .3rem}
+.service-head .tagline{color:var(--accent);font-size:.92rem;font-weight:600;margin:0 0 .5rem}
+.service-head p{color:var(--muted);margin:0;max-width:700px;font-size:.94rem}
+.packages{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+.package{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1.25rem;display:flex;flex-direction:column}
+.package h3{margin:0 0 .3rem;font-size:1rem}
+.price{font-size:1.6rem;font-weight:700;margin:.2rem 0 .2rem;direction:ltr}
+.price .unit{font-size:.8rem;color:var(--muted);font-weight:500}
+.eur-note{font-size:.8rem;color:var(--muted);margin-bottom:.9rem;direction:ltr}
+.package ul{margin:0 0 1.1rem;padding-right:1.1rem;padding-left:0;color:var(--muted);font-size:.87rem;flex:1}
+.package li{margin-bottom:.4rem}
+.package button,.package a.order-btn{width:100%;text-align:center;text-decoration:none;background:var(--accent);border:1px solid var(--accent);color:#04170a;font-weight:700;border-radius:6px;padding:.6rem;font-size:.92rem;cursor:pointer}
+.package.custom button,.package.custom a.order-btn{background:var(--panel-2);border-color:var(--border);color:var(--text)}
+.package.growth{border-color:var(--accent)}
+.badge{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:.72rem;font-weight:700;border-radius:4px;padding:.15rem .5rem;margin-bottom:.5rem}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1.5rem;max-width:440px;width:100%}
+.modal h3{margin:0 0 .25rem}
+.modal p.sub{color:var(--muted);font-size:.86rem;margin:0 0 1.1rem}
+.modal label{display:block;font-size:.84rem;color:var(--muted);margin:.75rem 0 .3rem}
+.modal input,.modal textarea{width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:.55rem .7rem;font-size:.92rem;font-family:inherit}
+.modal textarea{min-height:80px;resize:vertical}
+.modal .actions{display:flex;gap:.6rem;margin-top:1.3rem}
+.modal .actions button{flex:1;border-radius:6px;padding:.6rem;font-size:.92rem;cursor:pointer;font-weight:700}
+.modal .actions .submit{background:var(--accent);border:1px solid var(--accent);color:#04170a}
+.modal .actions .cancel{background:transparent;border:1px solid var(--border);color:var(--text)}
+.modal .err{color:var(--critical);font-size:.86rem;margin-top:.6rem;display:none}
+footer{border-top:1px solid var(--border);padding:2rem 0;color:var(--muted);font-size:.84rem}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+footer a{color:var(--muted)}
+.whatsapp-fab{position:fixed;left:1.25rem;bottom:1.25rem;z-index:20;width:3.25rem;height:3.25rem;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);text-decoration:none}
+.whatsapp-fab svg{width:1.6rem;height:1.6rem}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/ar/">Cubzi</a>
+    <div class="navlinks">
+      <a href="/ar/about">من نحن</a>
+      <a href="/ar/services">الخدمات</a>
+      <a href="/blog">المدونة</a>
+      <a href="/ar/contact">تواصل معنا</a>
+      <a class="lang-switch" href="/services">English</a>
+      <a href="/login">افتح الأداة</a>
+    </div>
+  </div>
+</nav>
+
+<div class="dash-nav" id="dashNav">
+  <div class="wrap">
+    <a href="/app">أداة الفحص</a>
+    <a href="/ar/services" class="active">الخدمات</a>
+    <a href="/ar/consulting">استشارة</a>
+    <a href="/admin" id="adminTabLink" style="display:none">الإدارة</a>
+    <button id="dashSignout">تسجيل الخروج</button>
+  </div>
+</div>
+
+<header class="hero wrap">
+  <h1>خدمات Kubernetes وDevOps</h1>
+  <p>أبعد من أداة Cubzi: نصمم وننشئ ونُشغّل بنية تحتية إنتاجية لـ Kubernetes وDevOps — سحابياً، محلياً، أو تصميماً معمارياً قابلاً للتوسع من الصفر. حزم بأسعار ثابتة أدناه، أو تواصل معنا لنطاق مخصص.</p>
+</header>
+
+<main class="wrap">
+  <div class="services" id="services">
+    <p style="color:var(--muted)">جارٍ تحميل الخدمات…</p>
+  </div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">طلب</h3>
+    <p class="sub" id="modalSub"></p>
+    <label for="contactName">الاسم</label>
+    <input type="text" id="contactName" placeholder="مثال: أحمد محمد">
+    <label for="contactEmail">البريد الإلكتروني</label>
+    <input type="text" id="contactEmail" placeholder="ahmed@company.com">
+    <label for="contactPhone">رقم الهاتف</label>
+    <input type="text" id="contactPhone" placeholder="+971 50 123 4567">
+    <label for="contactAddress">عنوان الفوترة</label>
+    <input type="text" id="contactAddress" placeholder="العنوان، المدينة، الدولة">
+    <label for="contactPostalCode">الرمز البريدي</label>
+    <input type="text" id="contactPostalCode" placeholder="12345">
+    <label for="projectNotes">تفاصيل المشروع (اختياري)</label>
+    <textarea id="projectNotes" placeholder="ما الذي تحاول بناءه أو إصلاحه؟"></textarea>
+    <p class="err" id="modalErr"></p>
+    <div class="actions">
+      <button class="cancel" id="modalCancel">إلغاء</button>
+      <button class="submit" id="modalSubmit">المتابعة للدفع</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Cubzi — فحص Kubernetes وتقدير التكلفة قبل النشر، وخدمات DevOps أعلاه.</p>
+    <div><a href="/ar/">الرئيسية</a> &middot; <a href="/ar/privacy">الخصوصية</a> &middot; <a href="/ar/docs">توثيق API</a></div>
+  </div>
+</footer>
+
+<a class="whatsapp-fab" href="https://wa.me/447346473123" target="_blank" rel="noopener" aria-label="تواصل معنا عبر واتساب">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.1c-.24.68-1.4 1.3-1.93 1.35-.53.06-1.03.27-3.44-.72-2.9-1.19-4.76-4.15-4.9-4.34-.14-.19-1.17-1.56-1.17-2.98s.74-2.11 1-2.4c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.14.07.15.12.32.02.51-.1.19-.15.3-.29.47-.15.17-.31.37-.44.5-.15.15-.3.31-.13.6.17.29.76 1.26 1.64 2.04 1.13 1 2.08 1.32 2.37 1.47.29.15.46.12.63-.07.17-.19.72-.84.92-1.13.19-.29.38-.24.64-.14.26.1 1.66.78 1.94.93.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+</a>
+
+<script>
+const TOKEN_KEY = 'mflint_token';
+const getToken = () => localStorage.getItem(TOKEN_KEY);
+const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+
+(async function initDashNav() {
+  const token = getToken();
+  if (!token) return;
+  document.getElementById('dashNav').classList.add('open');
+  document.getElementById('dashSignout').addEventListener('click', () => { clearToken(); location.reload(); });
+  try {
+    const res = await fetch('/v1/admin/whoami', { headers: { Authorization: 'Bearer ' + token } });
+    if (res.ok) document.getElementById('adminTabLink').style.display = 'inline-block';
+  } catch (err) { /* not admin or network hiccup; leave hidden */ }
+})();
+
+// Arabic display strings, keyed by the catalog's real serviceId/packageId
+// (fetched from /v1/services — the source of truth for pricing) so the
+// checkout still submits the exact IDs the backend expects.
+const AR = {
+  'k8s-cloud': {
+    name: 'إعداد Kubernetes السحابي والترحيل',
+    tagline: 'كلاسترات جاهزة للإنتاج على EKS أو GKE أو AKS أو DOKS',
+    description: 'نصمم وننشئ ونحصّن كلاستر Kubernetes مُدار على السحابة التي تختارها، وننقل أحمال العمل الحالية إليه دون توقف.',
+    packages: {
+      starter: { name: 'الأساسية', features: ['إعداد كلاستر واحد على AWS/GCP/Azure/DigitalOcean', 'Ingress + شهادة TLS تلقائية', 'ربط بخط CI/CD الحالي لديك', 'مستندات تسليم كاملة'] },
+      growth: { name: 'الاحترافية', features: ['كل ما في الخطة الأساسية', 'كلاستر HA متعدد العقد مع Autoscaling', 'منظومة مراقبة Prometheus + Grafana', 'إدارة الأسرار (sealed-secrets / external-secrets)', 'ترحيل أحمال العمل الحالية بلا توقف'] },
+      enterprise: { name: 'المؤسسات', features: ['كلاسترات متعددة / مناطق متعددة', 'امتثال وتحصين أمني', 'قناة دعم مخصصة', 'نطاق مخصص — تواصل معنا'] },
+    },
+  },
+  'k8s-onprem': {
+    name: 'نشر Kubernetes محلياً (On-Premises)',
+    tagline: 'كلاسترات مستضافة ذاتياً على عتادك الخاص',
+    description: 'Kubernetes على عتاد فعلي أو مركز بيانات خاص باستخدام kubeadm أو k3s أو RKE2 — للفرق التي تحتاج تحكماً كاملاً في مكان بياناتها.',
+    packages: {
+      starter: { name: 'الأساسية', features: ['كلاستر محلي واحد (kubeadm أو k3s)', 'شبكات (CNI) + ingress أساسي', 'مستندات تسليم كاملة'] },
+      growth: { name: 'الاحترافية', features: ['كل ما في الخطة الأساسية', 'control-plane بإتاحة عالية (HA) عبر عدة عقد', 'تخزين دائم (Longhorn أو Ceph)', 'سجل حاويات خاص (Private Registry)', 'منظومة مراقبة'] },
+      enterprise: { name: 'المؤسسات', features: ['تثبيت معزول (Air-gapped) / بلا اتصال', 'كلاسترات متعددة المواقع', 'استشارة تحديد حجم العتاد والتوريد', 'اتفاقية SLA مستمرة — تواصل معنا'] },
+    },
+  },
+  'devops-service': {
+    name: 'DevOps كخدمة',
+    tagline: 'CI/CD مستمر، observability، وعمليات بنية تحتية',
+    description: 'اشتراك شهري يغطي خطوط CI/CD، البنية التحتية ككود، المراقبة، والدعم التطبيقي المباشر — دون الحاجة لتوظيف مهندس DevOps بدوام كامل.',
+    packages: {
+      starter: { name: 'الأساسية', features: ['إعداد وصيانة خط CI/CD', 'Infrastructure as Code باستخدام Terraform', 'مراقبة وتنبيهات أساسية', 'حتى ١٠ ساعات دعم شهرياً'] },
+      growth: { name: 'الاحترافية', features: ['كل ما في الخطة الأساسية', 'منظومة observability كاملة (metrics وlogs وtraces)', 'GitOps عبر ArgoCD/Flux', 'الاستجابة للحوادث', 'حتى ٢٥ ساعة دعم شهرياً'] },
+      enterprise: { name: 'المؤسسات', features: ['مهندس DevOps مخصص', 'تغطية on-call على مدار الساعة', 'ساعات دعم غير محدودة — تواصل معنا'] },
+    },
+  },
+  'k8s-security-audit': {
+    name: 'تدقيق أمان Kubernetes وتحصينه',
+    tagline: 'اكتشف ما لا تستطيع أداة الفحص رصده — وأصلحه',
+    description: 'تدقيق تطبيقي لكلاستر يعمل فعلياً وفق معيار CIS Kubernetes Benchmark: RBAC، سياسات الشبكة، إدارة الأسرار، أمان الـ Pod، ومخاطر سلسلة التوريد، مع قائمة إصلاحات مرتّبة بالأولوية.',
+    packages: {
+      starter: { name: 'الأساسية', features: ['تدقيق آلي ويدوي وفق معيار CIS Kubernetes Benchmark', 'تقرير نتائج مكتوب، مرتّب حسب الخطورة'] },
+      growth: { name: 'الاحترافية', features: ['كل ما في الخطة الأساسية', 'مراجعة RBAC وإعادة تصميم وفق أقل الصلاحيات', 'تدقيق إدارة الأسرار (Secrets)', 'معالجة تطبيقية للنتائج المكتشفة'] },
+      enterprise: { name: 'المؤسسات', features: ['تدقيق موجّه للامتثال (ضوابط قريبة من SOC 2 / HIPAA)', 'تنسيق اختبار اختراق (Penetration Test)', 'نطاق مخصص — تواصل معنا'] },
+    },
+  },
+  'k8s-managed': {
+    name: 'Kubernetes مُدار (تشغيل مستمر)',
+    tagline: 'نُشغّل كلاسترك بدلاً عنك',
+    description: 'اشتراك شهري لكلاستر يعمل فعلياً: التحديثات، الترقيات، المراقبة، والاستجابة للحوادث، لكي لا يتلقى أحد في فريقك اتصالاً في الثالثة صباحاً بسبب مشكلة في عقدة.',
+    packages: {
+      starter: { name: 'الأساسية', features: ['تحديثات وترقيات الإصدارات', 'مراقبة التوفر + تقرير صحة شهري', 'دعم خلال ساعات العمل'] },
+      growth: { name: 'الاحترافية', features: ['كل ما في الخطة الأساسية', 'استجابة on-call للحوادث', 'مراجعة ربع سنوية لتحسين التكلفة', 'مراجعة معمارية ربع سنوية'] },
+      enterprise: { name: 'المؤسسات', features: ['تغطية على مدار الساعة مدعومة باتفاقية SLA', 'مهندس مخصص', 'نطاق مخصص — تواصل معنا'] },
+    },
+  },
+  'architecture-design': {
+    name: 'تصميم معماري قابل للتوسع',
+    tagline: 'تصميم النظام من أجل النمو، قبل أن تبنيه',
+    description: 'مراجعة لنظامك الحالي (أو تصميم من الصفر) تغطي حدود الخدمات، نمذجة البيانات، وخطة عملية للتوسّع مع نمو الحمل.',
+    packages: {
+      starter: { name: 'الأساسية', features: ['مراجعة معمارية لنظامك الحالي', 'تقرير مكتوب + خارطة طريق مرتّبة بالأولوية'] },
+      growth: { name: 'الاحترافية', features: ['تصميم نظام كامل من الصفر أو إعادة تصميم جذرية', 'حدود الخدمات (Service Boundaries) ونموذج البيانات', 'خطة توسّع (caching وqueues وsharding)', 'جلستا مراجعة مباشرتان'] },
+      enterprise: { name: 'المؤسسات', features: ['شراكة تطبيقية في البناء', 'استشارة معمارية مستمرة', 'نطاق مخصص — تواصل معنا'] },
+    },
+  },
+};
+
+const servicesEl = document.getElementById('services');
+const overlay = document.getElementById('overlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalSub = document.getElementById('modalSub');
+const modalErr = document.getElementById('modalErr');
+const contactName = document.getElementById('contactName');
+const contactEmail = document.getElementById('contactEmail');
+const contactPhone = document.getElementById('contactPhone');
+const contactAddress = document.getElementById('contactAddress');
+const contactPostalCode = document.getElementById('contactPostalCode');
+const projectNotes = document.getElementById('projectNotes');
+const modalSubmit = document.getElementById('modalSubmit');
+const modalCancel = document.getElementById('modalCancel');
+
+let pendingOrder = null;
+
+const USD_TO_EUR = 0.92;
+const eur = (usd) => Math.round(usd * USD_TO_EUR);
+
+function escapeHTML(s) {
+  const div = document.createElement('div');
+  div.textContent = s || '';
+  return div.innerHTML;
+}
+
+function openOrderModal(svc, pkg, arSvc, arPkg) {
+  pendingOrder = { serviceId: svc.id, packageId: pkg.id };
+  modalTitle.textContent = arSvc.name + ' — ' + arPkg.name;
+  modalSub.textContent = '$' + pkg.priceUsd + ' (~€' + eur(pkg.priceUsd) + ')' + (pkg.billing === '/mo' ? ' / شهرياً' : ' دفعة واحدة') + '. سنتواصل معك عبر البريد الإلكتروني بعد الدفع.';
+  modalErr.style.display = 'none';
+  overlay.classList.add('open');
+}
+
+modalCancel.addEventListener('click', () => overlay.classList.remove('open'));
+overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+modalSubmit.addEventListener('click', async () => {
+  const token = getToken();
+  if (!token) {
+    window.location.href = '/login';
+    return;
+  }
+  if (!contactName.value.trim() || !contactEmail.value.trim() || !contactPhone.value.trim() || !contactAddress.value.trim() || !contactPostalCode.value.trim()) {
+    modalErr.textContent = 'الاسم والبريد الإلكتروني والهاتف والعنوان والرمز البريدي كلها مطلوبة.';
+    modalErr.style.display = 'block';
+    return;
+  }
+  modalSubmit.disabled = true;
+  modalSubmit.textContent = 'جارٍ إنشاء الطلب…';
+  modalErr.style.display = 'none';
+  try {
+    const res = await fetch('/v1/services/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({
+        serviceId: pendingOrder.serviceId,
+        packageId: pendingOrder.packageId,
+        contactName: contactName.value.trim(),
+        contactEmail: contactEmail.value.trim(),
+        contactPhone: contactPhone.value.trim(),
+        contactAddress: contactAddress.value.trim(),
+        contactPostalCode: contactPostalCode.value.trim(),
+        projectNotes: projectNotes.value.trim(),
+      }),
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(text || ('HTTP ' + res.status));
+    const data = JSON.parse(text);
+    if (data.checkoutUrl) {
+      window.location.href = data.checkoutUrl;
+    } else {
+      throw new Error('لم يتم إرجاع رابط دفع');
+    }
+  } catch (err) {
+    modalErr.textContent = err.message;
+    modalErr.style.display = 'block';
+  } finally {
+    modalSubmit.disabled = false;
+    modalSubmit.textContent = 'المتابعة للدفع';
+  }
+});
+
+function render(catalog) {
+  servicesEl.innerHTML = '';
+  for (const svc of catalog) {
+    const arSvc = AR[svc.id];
+    if (!arSvc) continue;
+    const section = document.createElement('div');
+    section.className = 'service';
+    section.innerHTML = `
+      <div class="service-head">
+        <h2>${escapeHTML(arSvc.name)}</h2>
+        <p class="tagline">${escapeHTML(arSvc.tagline)}</p>
+        <p>${escapeHTML(arSvc.description)}</p>
+      </div>
+      <div class="packages"></div>
+    `;
+    const packagesEl = section.querySelector('.packages');
+    for (const pkg of svc.packages) {
+      const arPkg = arSvc.packages[pkg.id];
+      const card = document.createElement('div');
+      card.className = 'package' + (pkg.id === 'growth' ? ' growth' : '') + (pkg.custom ? ' custom' : '');
+      const priceHTML = pkg.custom
+        ? '<div class="price">مخصص</div>'
+        : `<div class="price">$${pkg.priceUsd}<span class="unit"> ${pkg.billing === '/mo' ? '/ شهرياً' : 'دفعة واحدة'}</span></div><div class="eur-note">~€${eur(pkg.priceUsd)} ${pkg.billing === '/mo' ? '/ mo' : 'one-time'}</div>`;
+      const featuresHTML = arPkg.features.map(f => `<li>${escapeHTML(f)}</li>`).join('');
+      card.innerHTML = `
+        ${pkg.id === 'growth' ? '<span class="badge">الأكثر طلباً</span>' : ''}
+        <h3>${escapeHTML(arPkg.name)}</h3>
+        ${priceHTML}
+        <ul>${featuresHTML}</ul>
+        ${pkg.custom
+          ? '<a class="order-btn" href="https://wa.me/447346473123" target="_blank" rel="noopener">تواصل معنا</a>'
+          : '<button data-service="' + svc.id + '" data-package="' + pkg.id + '">اطلب الآن</button>'}
+      `;
+      packagesEl.appendChild(card);
+    }
+    servicesEl.appendChild(section);
+  }
+  servicesEl.querySelectorAll('button[data-service]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const svc = catalog.find(s => s.id === btn.dataset.service);
+      const pkg = svc.packages.find(p => p.id === btn.dataset.package);
+      openOrderModal(svc, pkg, AR[svc.id], AR[svc.id].packages[pkg.id]);
+    });
+  });
+}
+
+fetch('/v1/services')
+  .then(res => res.json())
+  .then(render)
+  .catch(() => { servicesEl.innerHTML = '<p style="color:var(--critical)">تعذّر تحميل الخدمات. حاول لاحقاً.</p>'; });
+</script>
+
+</body>
+</html>
