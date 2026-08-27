@@ -17,4 +17,9 @@
   <url><loc>https://cubzi.cloud/blog/kubernetes-linting-in-github-actions-ci</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://cubzi.cloud/blog/common-kubernetes-misconfigurations</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://cubzi.cloud/blog/kubernetes-cost-optimization-guide</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/kubernetes-rbac-best-practices</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/kubeadm-vs-k3s-vs-rke2</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/argocd-vs-flux-gitops-comparison</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/kubernetes-autoscaling-hpa-vpa-cluster-autoscaler</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://cubzi.cloud/blog/when-to-hire-a-devops-consultant</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
 </urlset>

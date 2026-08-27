@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes RBAC Best Practices: Least Privilege Without the Pain — Cubzi</title>
+<meta name="description" content="A practical guide to Kubernetes RBAC — Roles vs ClusterRoles, common over-privileged patterns, and a least-privilege setup that doesn't slow your team down.">
+<link rel="canonical" href="https://cubzi.cloud/blog/kubernetes-rbac-best-practices">
+<meta name="robots" content="index, follow">
+<meta name="keywords" content="kubernetes rbac, kubernetes rbac best practices, kubernetes role based access control, kubernetes clusterrole, kubernetes least privilege">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes RBAC Best Practices: Least Privilege Without the Pain">
+<meta property="og:description" content="Roles vs ClusterRoles, common over-privileged patterns, and how to design least-privilege RBAC that doesn't slow your team down.">
+<meta property="og:url" content="https://cubzi.cloud/blog/kubernetes-rbac-best-practices">
+<meta property="og:image" content="https://cubzi.cloud/blog/images/kubernetes-rbac-best-practices.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/blog/images/kubernetes-rbac-best-practices.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Kubernetes RBAC Best Practices: Least Privilege Without the Pain",
+  "description": "Roles vs ClusterRoles, common over-privileged patterns, and how to design least-privilege RBAC that doesn't slow your team down.",
+  "image": "https://cubzi.cloud/blog/images/kubernetes-rbac-best-practices.png",
+  "url": "https://cubzi.cloud/blog/kubernetes-rbac-best-practices",
+  "datePublished": "2026-08-27",
+  "dateModified": "2026-08-27",
+  "author": {
+    "@type": "Organization",
+    "name": "Cubzi"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cubzi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://cubzi.cloud/images/og-home.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://cubzi.cloud/blog/kubernetes-rbac-best-practices"
+  }
+}
+</script>
+<style>
+:root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+a{color:var(--info)}
+.wrap{max-width:720px;margin:0 auto;padding:0 1.5rem}
+nav{border-bottom:1px solid var(--border);padding:1rem 0}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;max-width:900px}
+.logo{font-weight:700;font-size:1.15rem;text-decoration:none;color:var(--text)}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:.88rem;margin-left:1.1rem}
+.navlinks a:hover{color:var(--text)}
+article{padding:3rem 0 3rem}
+.crumb{font-size:.85rem;margin-bottom:1.5rem}
+.crumb a{color:var(--muted)}
+article h1{font-size:1.9rem;line-height:1.25;margin:0 0 .6rem;letter-spacing:-.01em}
+.meta{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+article h2{font-size:1.25rem;margin:2.2rem 0 .75rem;letter-spacing:-.01em}
+article h3{font-size:1.02rem;margin:1.5rem 0 .5rem}
+article p{margin:0 0 1rem}
+article ul,article ol{margin:0 0 1rem;padding-left:1.4rem}
+article li{margin-bottom:.4rem}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--panel-2);border:1px solid var(--border);border-radius:4px;padding:.1rem .35rem;font-size:.88em}
+pre{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;overflow-x:auto;font-size:.85rem}
+pre code{background:none;border:none;padding:0}
+.callout{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;font-size:.92rem;color:var(--muted)}
+.cta{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-top:2.5rem;text-align:center}
+.cta a{display:inline-block;margin-top:.75rem;background:var(--accent);color:#04170a;padding:.65rem 1.3rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem}
+.related{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.related h2{margin-top:0}
+.related ul{list-style:none;padding:0}
+.related li{margin-bottom:.5rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1rem 0}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted)}
+footer{border-top:1px solid var(--border);padding:2rem 0;color:var(--muted);font-size:.82rem}
+footer .wrap{max-width:900px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+footer a{color:var(--muted)}
+.whatsapp-fab{position:fixed;right:1.25rem;bottom:1.25rem;z-index:20;width:3.25rem;height:3.25rem;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);text-decoration:none}
+.whatsapp-fab svg{width:1.6rem;height:1.6rem}
+@media(max-width:640px){.navlinks{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/">Cubzi</a>
+    <div class="navlinks">
+      <a href="/blog">Blog</a>
+      <a href="/services">Services</a>
+      <a href="/docs">API docs</a>
+      <a href="/login">Open the tool</a>
+    </div>
+  </div>
+</nav>
+
+<article class="wrap">
+  <div class="crumb"><a href="/blog">← Blog</a></div>
+  <h1>Kubernetes RBAC Best Practices: Least Privilege Without the Pain</h1>
+  <p class="meta">Security &middot; 9 min read</p>
+
+<img src="/blog/images/kubernetes-rbac-best-practices.png" alt="Kubernetes RBAC Best Practices: Least Privilege Without the Pain" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:1.5rem;" width="1200" height="630" loading="eager">
+
+  <p>Most clusters start with RBAC turned on and every ServiceAccount bound to <code>cluster-admin</code> "just to get it working" — and then that binding never gets revisited. It's the single most common finding in every cluster audit we run: not a missing NetworkPolicy, not an unpinned image tag, but a ServiceAccount that can delete any resource in any namespace when it only ever needed to read ConfigMaps in one.</p>
+
+  <p>RBAC in Kubernetes is genuinely simple once you separate the four objects it's built from. The complexity people run into is almost always a design problem, not an API problem.</p>
+
+  <h2>The four objects, in one paragraph each</h2>
+
+  <h3>Role and ClusterRole: what's allowed</h3>
+  <p>A <code>Role</code> defines a set of permissions (verbs like <code>get</code>, <code>list</code>, <code>create</code>, <code>delete</code> on resources like <code>pods</code>, <code>secrets</code>, <code>deployments</code>) scoped to a single namespace. A <code>ClusterRole</code> is the same idea but not bound to a namespace — it can be applied cluster-wide, or scoped to one namespace when referenced by a RoleBinding instead of a ClusterRoleBinding. Reach for <code>ClusterRole</code> only when the permission genuinely needs to span namespaces (node access, CRDs, PersistentVolumes) — not by default.</p>
+
+  <h3>RoleBinding and ClusterRoleBinding: who gets it</h3>
+  <p>A binding attaches a Role/ClusterRole to a subject — a User, Group, or ServiceAccount. This is the piece that most often gets left too broad: a <code>ClusterRoleBinding</code> to <code>cluster-admin</code> is the RBAC equivalent of running every container as root.</p>
+
+  <pre><code>apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: billing
+  name: configmap-reader
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: billing
+  name: billing-app-configmap-reader
+subjects:
+  - kind: ServiceAccount
+    name: billing-app
+    namespace: billing
+roleRef:
+  kind: Role
+  name: configmap-reader
+  apiGroup: rbac.authorization.k8s.io</code></pre>
+
+  <h2>Where clusters actually go wrong</h2>
+
+  <h3>1. Every workload gets the <code>default</code> ServiceAccount</h3>
+  <p>If a Pod spec doesn't set <code>serviceAccountName</code>, it runs as the namespace's <code>default</code> ServiceAccount — and if that ServiceAccount has any binding at all (even indirectly, via a broad ClusterRoleBinding), every unrelated workload in the namespace inherits it. Give every application its own ServiceAccount, scoped to exactly what it needs.</p>
+
+  <h3>2. Wildcard verbs and resources</h3>
+  <p><code>verbs: ["*"]</code> or <code>resources: ["*"]</code> shows up constantly in Roles that were written once under deadline pressure and never trimmed. It's almost never actually required — list the specific verbs the workload calls.</p>
+
+  <h3>3. Secrets access bundled with everything else</h3>
+  <p><code>get</code> on <code>secrets</code> is one of the highest-value permissions in the entire API — it's frequently how a compromised low-privilege pod becomes a cluster-wide incident, by reading a ServiceAccount token or a cloud credential out of a Secret it never needed to see. Put <code>secrets</code> permissions in their own Role, bound only to the specific ServiceAccounts that read that specific Secret.</p>
+
+  <h3>4. <code>cluster-admin</code> bound to CI/CD</h3>
+  <p>A CI/CD pipeline that deploys to one namespace doesn't need <code>cluster-admin</code> — it needs <code>create</code>/<code>update</code>/<code>delete</code> on Deployments, Services, and ConfigMaps in that one namespace. Scope the deploy-time ServiceAccount to exactly that.</p>
+
+  <h2>A least-privilege pattern that scales</h2>
+  <p>Rather than writing one Role per application from scratch, define a small number of reusable ClusterRoles (e.g. <code>app-runtime</code>: read ConfigMaps/Secrets in its own namespace, <code>app-deployer</code>: manage Deployments/Services in its own namespace) and bind them per-namespace with RoleBindings. New services get a ServiceAccount and two bindings, not a bespoke policy document.</p>
+
+  <div class="callout">Run <code>kubectl auth can-i --list --as=system:serviceaccount:NAMESPACE:SERVICEACCOUNT</code> against every ServiceAccount in a cluster before an audit — it prints exactly what that identity can do, and is usually the fastest way to find the one binding that's wider than everything else combined.</div>
+
+
+  <div class="cta">
+    <p>Cubzi's security audit reviews your RBAC setup and hands you a concrete remediation plan.</p>
+    <a href="/services">See the security audit package →</a>
+  </div>
+
+  <div class="related">
+    <h2>Related</h2>
+    <ul>
+      <li><a href="/blog/kubernetes-manifest-security-checklist">Kubernetes Manifest Security Checklist</a></li>
+      <li><a href="/blog/common-kubernetes-misconfigurations">Common Kubernetes Misconfigurations That Lead to Security Incidents</a></li>
+      <li><a href="/blog/why-pods-should-not-run-as-root">Why Your Pods Shouldn't Run as Root (and How to Fix It)</a></li>
+    </ul>
+  </div>
+</article>
+
+<footer>
+  <div class="wrap">
+    <p>Cubzi — pre-deploy Kubernetes linting + cost estimation.</p>
+    <div><a href="/">Home</a> &middot; <a href="/docs">API docs</a> &middot; <a href="/login">Open the tool</a></div>
+  </div>
+</footer>
+
+<a class="whatsapp-fab" href="https://wa.me/447346473123" target="_blank" rel="noopener" aria-label="Chat with support on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.1c-.24.68-1.4 1.3-1.93 1.35-.53.06-1.03.27-3.44-.72-2.9-1.19-4.76-4.15-4.9-4.34-.14-.19-1.17-1.56-1.17-2.98s.74-2.11 1-2.4c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.14.07.15.12.32.02.51-.1.19-.15.3-.29.47-.15.17-.31.37-.44.5-.15.15-.3.31-.13.6.17.29.76 1.26 1.64 2.04 1.13 1 2.08 1.32 2.37 1.47.29.15.46.12.63-.07.17-.19.72-.84.92-1.13.19-.29.38-.24.64-.14.26.1 1.66.78 1.94.93.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+</a>
+
+</body>
+</html>

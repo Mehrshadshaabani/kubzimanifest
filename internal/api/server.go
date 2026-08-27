@@ -96,7 +96,12 @@ func (s *Server) Router() http.Handler {
 		r.Get("/consulting", s.serveWebFile("consulting.html"))
 		r.Get("/admin", s.serveWebFile("admin.html"))
 		r.Get("/blog", s.serveWebFile("blog.html"))
+		// Registered before "/blog/{slug}" — chi matches this literal path
+		// prefix ahead of the param route below for the "images" segment,
+		// so /blog/images/* doesn't get swallowed as a slug lookup.
+		r.Handle("/blog/images/*", http.StripPrefix("/blog/images/", http.FileServer(http.Dir(filepath.Join(s.WebDir, "blog", "images")))))
 		r.Get("/blog/{slug}", s.serveBlogPost)
+		r.Handle("/images/*", http.StripPrefix("/images/", http.FileServer(http.Dir(filepath.Join(s.WebDir, "images")))))
 		r.Get("/robots.txt", s.serveWebFile("robots.txt"))
 		r.Get("/sitemap.xml", s.serveWebFile("sitemap.xml"))
 	}
