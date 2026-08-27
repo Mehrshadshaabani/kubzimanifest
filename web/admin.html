@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Cubzi</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--info)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 1.5rem}
+.dash-nav{border-bottom:1px solid var(--border);background:var(--panel)}
+.dash-nav .wrap{display:flex;align-items:center;gap:.25rem;padding:.6rem 1.5rem;flex-wrap:wrap}
+.dash-nav a{color:var(--muted);text-decoration:none;font-size:.85rem;padding:.4rem .7rem;border-radius:6px}
+.dash-nav a:hover{color:var(--text);background:var(--panel-2)}
+.dash-nav a.active{color:var(--accent);background:var(--accent-dim);font-weight:600}
+.dash-nav .logo{color:var(--text);font-weight:700;text-decoration:none;margin-right:1rem}
+.dash-nav button{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:.4rem .8rem;font-size:.82rem;cursor:pointer}
+main{padding:2rem 0 3rem}
+h1{font-size:1.4rem;margin:0 0 .3rem}
+.sub{color:var(--muted);font-size:.9rem;margin:0 0 1.75rem}
+.tabs{display:flex;gap:.5rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border)}
+.tabs button{background:transparent;border:none;color:var(--muted);font-size:.9rem;font-weight:600;padding:.6rem .9rem;cursor:pointer;border-bottom:2px solid transparent}
+.tabs button.active{color:var(--accent);border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.9rem;margin-bottom:1.75rem}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1rem}
+.stat .n{font-size:1.5rem;font-weight:700}
+.stat .l{color:var(--muted);font-size:.78rem}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1.25rem;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem;white-space:nowrap}
+th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--panel)}
+select{background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem}
+.badge{border-radius:999px;padding:.15rem .6rem;font-size:.72rem;font-weight:700;text-transform:uppercase}
+.badge.pending_payment{color:var(--warning);border:1px solid var(--warning)}
+.badge.paid{color:var(--info);border:1px solid var(--info)}
+.badge.in_progress{color:var(--accent);border:1px solid var(--accent)}
+.badge.completed{color:var(--muted);border:1px solid var(--muted)}
+.badge.cancelled{color:var(--critical);border:1px solid var(--critical)}
+.gate{max-width:420px;margin:4rem auto;text-align:center;padding:0 1.5rem}
+.gate h2{margin-bottom:.5rem}
+.gate p{color:var(--muted)}
+.muted{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="dash-nav">
+  <div class="wrap">
+    <a class="logo" href="/">Cubzi</a>
+    <a href="/app">Lint tool</a>
+    <a href="/services">Services</a>
+    <a href="/consulting">Consulting</a>
+    <a href="/admin" class="active">Admin</a>
+    <button id="dashSignout">Sign out</button>
+  </div>
+</div>
+
+<div id="gate" class="gate" style="display:none">
+  <h2 id="gateTitle">Checking access…</h2>
+  <p id="gateMsg"></p>
+</div>
+
+<main class="wrap" id="adminMain" style="display:none">
+  <h1>Admin</h1>
+  <p class="sub">Service orders and consultation leads across all users.</p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="tabs">
+    <button class="active" data-tab="orders">Service orders</button>
+    <button data-tab="consultations">Consultation requests</button>
+  </div>
+
+  <div class="panel" id="ordersPanel">
+    <table>
+      <thead><tr><th>Ordered</th><th>User</th><th>Service</th><th>Package</th><th>Price</th><th>Contact</th><th>Notes</th><th>Status</th></tr></thead>
+      <tbody id="ordersBody"><tr><td colspan="8" class="muted">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="panel" id="consultationsPanel" style="display:none">
+    <table>
+      <thead><tr><th>Received</th><th>Name</th><th>Email</th><th>Message</th></tr></thead>
+      <tbody id="consultationsBody"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+const TOKEN_KEY = 'mflint_token';
+const getToken = () => localStorage.getItem(TOKEN_KEY);
+const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+
+document.getElementById('dashSignout').addEventListener('click', () => { clearToken(); location.href = '/app'; });
+
+function escapeHTML(s) {
+  const div = document.createElement('div');
+  div.textContent = s || '';
+  return div.innerHTML;
+}
+
+const gate = document.getElementById('gate');
+const gateTitle = document.getElementById('gateTitle');
+const gateMsg = document.getElementById('gateMsg');
+const adminMain = document.getElementById('adminMain');
+
+const ORDER_STATUSES = ['pending_payment', 'paid', 'in_progress', 'completed', 'cancelled'];
+
+async function init() {
+  const token = getToken();
+  if (!token) {
+    gate.style.display = 'block';
+    gateTitle.textContent = 'Sign in required';
+    gateMsg.innerHTML = '<a href="/login">Sign in</a> with the admin account to continue.';
+    return;
+  }
+
+  let res;
+  try {
+    res = await fetch('/v1/admin/whoami', { headers: { Authorization: 'Bearer ' + token } });
+  } catch (err) {
+    gate.style.display = 'block';
+    gateTitle.textContent = 'Network error';
+    gateMsg.textContent = 'Could not reach the server. Try again.';
+    return;
+  }
+  if (res.status === 401) {
+    gate.style.display = 'block';
+    gateTitle.textContent = 'Sign in required';
+    gateMsg.innerHTML = '<a href="/login">Sign in</a> with the admin account to continue.';
+    return;
+  }
+  if (res.status === 403) {
+    gate.style.display = 'block';
+    gateTitle.textContent = 'Not authorized';
+    gateMsg.textContent = "You're signed in, but this account doesn't have admin access.";
+    return;
+  }
+  if (!res.ok) {
+    gate.style.display = 'block';
+    gateTitle.textContent = 'Something went wrong';
+    gateMsg.textContent = 'Could not verify admin access.';
+    return;
+  }
+
+  adminMain.style.display = 'block';
+  await Promise.all([loadOrders(), loadConsultations()]);
+}
+
+let allOrders = [];
+
+async function loadOrders() {
+  const token = getToken();
+  const res = await fetch('/v1/admin/service-orders', { headers: { Authorization: 'Bearer ' + token } });
+  allOrders = await res.json();
+  renderStats();
+  renderOrders();
+}
+
+function renderStats() {
+  const pipeline = allOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+  const pipelineValue = pipeline.reduce((sum, o) => sum + o.priceUsd, 0);
+  const paidValue = allOrders.filter(o => o.status !== 'pending_payment' && o.status !== 'cancelled').reduce((sum, o) => sum + o.priceUsd, 0);
+  const stats = [
+    { n: allOrders.length, l: 'Total orders' },
+    { n: pipeline.length, l: 'Active pipeline' },
+    { n: '$' + pipelineValue.toLocaleString(), l: 'Pipeline value' },
+    { n: '$' + paidValue.toLocaleString(), l: 'Paid to date' },
+  ];
+  document.getElementById('stats').innerHTML = stats.map(s => `<div class="stat"><div class="n">${s.n}</div><div class="l">${s.l}</div></div>`).join('');
+}
+
+function renderOrders() {
+  const tbody = document.getElementById('ordersBody');
+  if (!allOrders.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="muted">No service orders yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  for (const o of allOrders) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="muted">${new Date(o.createdAt).toLocaleDateString()}</td>
+      <td>${escapeHTML(o.userEmail)}</td>
+      <td>${escapeHTML(o.serviceName)}</td>
+      <td>${escapeHTML(o.packageName)}</td>
+      <td>$${o.priceUsd}</td>
+      <td>${escapeHTML(o.contactName)}<br><span class="muted">${escapeHTML(o.contactEmail)}</span></td>
+      <td style="white-space:normal;max-width:220px;">${escapeHTML(o.projectNotes) || '<span class="muted">—</span>'}</td>
+      <td></td>
+    `;
+    const statusTd = tr.lastElementChild;
+    const select = document.createElement('select');
+    for (const s of ORDER_STATUSES) {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      if (s === o.status) opt.selected = true;
+      select.appendChild(opt);
+    }
+    select.addEventListener('change', () => updateStatus(o.id, select.value));
+    statusTd.appendChild(select);
+    tbody.appendChild(tr);
+  }
+}
+
+async function updateStatus(id, status) {
+  const token = getToken();
+  await fetch(`/v1/admin/service-orders/${id}/status`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify({ status }),
+  });
+  const o = allOrders.find(x => x.id === id);
+  if (o) o.status = status;
+  renderStats();
+}
+
+async function loadConsultations() {
+  const token = getToken();
+  const res = await fetch('/v1/admin/consultations', { headers: { Authorization: 'Bearer ' + token } });
+  const reqs = await res.json();
+  const tbody = document.getElementById('consultationsBody');
+  if (!reqs.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="muted">No consultation requests yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  for (const c of reqs) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="muted">${new Date(c.createdAt).toLocaleDateString()}</td>
+      <td>${escapeHTML(c.name)}</td>
+      <td>${escapeHTML(c.contactEmail)}</td>
+      <td style="white-space:normal;max-width:400px;">${escapeHTML(c.message) || '<span class="muted">—</span>'}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+document.querySelectorAll('.tabs button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('ordersPanel').style.display = btn.dataset.tab === 'orders' ? 'block' : 'none';
+    document.getElementById('consultationsPanel').style.display = btn.dataset.tab === 'consultations' ? 'block' : 'none';
+  });
+});
+
+init();
+</script>
+
+</body>
+</html>

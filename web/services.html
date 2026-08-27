@@ -11,6 +11,9 @@
 <meta property="og:title" content="Kubernetes & DevOps Services — Cubzi">
 <meta property="og:description" content="Kubernetes cloud & on-premises setup, DevOps as a service, and scalable software architecture design.">
 <meta property="og:url" content="https://cubzi.cloud/services">
+<meta property="og:image" content="https://cubzi.cloud/images/og-services.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/images/og-services.png">
 <style>
 :root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
 *{box-sizing:border-box}
@@ -23,6 +26,13 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between}
 .navlinks a{color:var(--muted);text-decoration:none;font-size:.88rem;margin-left:1.1rem}
 .navlinks a:hover{color:var(--text)}
 @media(max-width:640px){.navlinks{display:none}}
+.dash-nav{display:none;border-bottom:1px solid var(--border);background:var(--panel)}
+.dash-nav.open{display:block}
+.dash-nav .wrap{display:flex;align-items:center;gap:.25rem;padding:.6rem 1.5rem;flex-wrap:wrap}
+.dash-nav a{color:var(--muted);text-decoration:none;font-size:.85rem;padding:.4rem .7rem;border-radius:6px}
+.dash-nav a:hover{color:var(--text);background:var(--panel-2)}
+.dash-nav a.active{color:var(--accent);background:var(--accent-dim);font-weight:600}
+.dash-nav button{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:.4rem .8rem;font-size:.82rem;cursor:pointer}
 header.hero{padding:3.5rem 0 2.5rem;text-align:center}
 header.hero h1{font-size:2.1rem;margin:0 0 .75rem;letter-spacing:-.01em}
 header.hero p{color:var(--muted);font-size:1.05rem;max-width:640px;margin:0 auto}
@@ -80,6 +90,16 @@ footer a{color:var(--muted)}
   </div>
 </nav>
 
+<div class="dash-nav" id="dashNav">
+  <div class="wrap">
+    <a href="/app">Lint tool</a>
+    <a href="/services" class="active">Services</a>
+    <a href="/consulting">Consulting</a>
+    <a href="/admin" id="adminTabLink" style="display:none">Admin</a>
+    <button id="dashSignout">Sign out</button>
+  </div>
+</div>
+
 <header class="hero wrap">
   <h1>Kubernetes & DevOps services</h1>
   <p>Beyond the Cubzi tool: we design, build, and run production Kubernetes and DevOps infrastructure — cloud, on-premises, or a scalable architecture from scratch. Fixed-price packages below, or contact us for a custom scope.</p>
@@ -123,6 +143,18 @@ footer a{color:var(--muted)}
 <script>
 const TOKEN_KEY = 'mflint_token';
 const getToken = () => localStorage.getItem(TOKEN_KEY);
+const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+
+(async function initDashNav() {
+  const token = getToken();
+  if (!token) return;
+  document.getElementById('dashNav').classList.add('open');
+  document.getElementById('dashSignout').addEventListener('click', () => { clearToken(); location.reload(); });
+  try {
+    const res = await fetch('/v1/admin/whoami', { headers: { Authorization: 'Bearer ' + token } });
+    if (res.ok) document.getElementById('adminTabLink').style.display = 'inline-block';
+  } catch (err) { /* not admin or network hiccup; leave hidden */ }
+})();
 
 const servicesEl = document.getElementById('services');
 const overlay = document.getElementById('overlay');

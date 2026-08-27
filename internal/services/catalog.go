@@ -107,6 +107,53 @@ var Catalog = []Service{
 		},
 	},
 	{
+		ID:          "k8s-security-audit",
+		Name:        "Kubernetes Security Audit & Hardening",
+		Tagline:     "Find what a linter can't catch — and fix it",
+		Description: "A hands-on audit of a running cluster against the CIS Kubernetes Benchmark: RBAC, network policy, secrets handling, pod security, and supply-chain risk, with a prioritized fix list.",
+		Packages: []Package{
+			{ID: "starter", Name: "Starter", PriceUSD: 450, Billing: "one-time", Features: []string{
+				"Automated + manual audit against CIS Kubernetes Benchmark",
+				"Written findings report, ranked by severity",
+			}},
+			{ID: "growth", Name: "Growth", PriceUSD: 1200, Billing: "one-time", Features: []string{
+				"Everything in Starter",
+				"RBAC review and least-privilege redesign",
+				"Secrets management audit",
+				"Hands-on remediation of findings",
+			}},
+			{ID: "enterprise", Name: "Enterprise", Custom: true, Features: []string{
+				"Compliance-oriented audit (SOC 2 / HIPAA-adjacent controls)",
+				"Penetration test coordination",
+				"Custom scope — talk to us",
+			}},
+		},
+	},
+	{
+		ID:          "k8s-managed",
+		Name:        "Managed Kubernetes (Ongoing Ops)",
+		Tagline:     "We run your cluster so you don't have to",
+		Description: "A monthly retainer for an already-running cluster: patching, upgrades, monitoring, and incident response, so nobody on your team is paged at 3am for a node problem.",
+		Packages: []Package{
+			{ID: "starter", Name: "Starter", PriceUSD: 650, Billing: "/mo", Features: []string{
+				"Patching & version upgrades",
+				"Uptime monitoring + monthly health report",
+				"Business-hours support",
+			}},
+			{ID: "growth", Name: "Growth", PriceUSD: 1400, Billing: "/mo", Features: []string{
+				"Everything in Starter",
+				"On-call incident response",
+				"Quarterly cost optimization review",
+				"Quarterly architecture review",
+			}},
+			{ID: "enterprise", Name: "Enterprise", Custom: true, Features: []string{
+				"24/7 SLA-backed coverage",
+				"Dedicated engineer",
+				"Custom scope — talk to us",
+			}},
+		},
+	},
+	{
 		ID:          "architecture-design",
 		Name:        "Scalable Software Architecture Design",
 		Tagline:     "System design for growth, before you build it",

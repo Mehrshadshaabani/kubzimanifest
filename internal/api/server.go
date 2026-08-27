@@ -28,6 +28,11 @@ type Server struct {
 	GoogleOAuth auth.OAuthConfig
 	GitHubOAuth auth.OAuthConfig
 	WebDir      string // directory containing landing.html and index.html
+	// AdminEmails are the sign-in emails allowed to use /v1/admin/* and the
+	// /admin page (see requireAdmin in middleware.go). There's no separate
+	// admin account type — an admin is just a regular OAuth user whose
+	// email is in this list.
+	AdminEmails []string
 }
 
 func (s *Server) Router() http.Handler {
@@ -40,6 +45,7 @@ func (s *Server) Router() http.Handler {
 		v1.With(lintRateLimiter()).Post("/lint", s.handleLint)
 		v1.Get("/auth/providers", s.handleAuthProviders)
 		v1.Get("/services", s.handleListServices)
+		v1.Post("/consultations", s.handleCreateConsultation)
 
 		if s.Store != nil {
 			// Authenticate via the provider's own mechanism, not a bearer
@@ -58,6 +64,14 @@ func (s *Server) Router() http.Handler {
 				protected.Delete("/api-keys/{id}", s.handleDeleteAPIKey)
 				protected.Post("/services/orders", s.handleCreateServiceOrder)
 				protected.Get("/services/orders", s.handleListServiceOrders)
+
+				protected.Group(func(admin chi.Router) {
+					admin.Use(s.requireAdmin)
+					admin.Get("/admin/whoami", s.handleAdminWhoAmI)
+					admin.Get("/admin/service-orders", s.handleAdminListServiceOrders)
+					admin.Post("/admin/service-orders/{id}/status", s.handleAdminUpdateServiceOrderStatus)
+					admin.Get("/admin/consultations", s.handleAdminListConsultations)
+				})
 			})
 
 			if s.GoogleOAuth.Enabled() {
@@ -79,6 +93,8 @@ func (s *Server) Router() http.Handler {
 		r.Get("/docs", s.serveWebFile("docs.html"))
 		r.Get("/privacy", s.serveWebFile("privacy.html"))
 		r.Get("/services", s.serveWebFile("services.html"))
+		r.Get("/consulting", s.serveWebFile("consulting.html"))
+		r.Get("/admin", s.serveWebFile("admin.html"))
 		r.Get("/blog", s.serveWebFile("blog.html"))
 		r.Get("/blog/{slug}", s.serveBlogPost)
 		r.Get("/robots.txt", s.serveWebFile("robots.txt"))

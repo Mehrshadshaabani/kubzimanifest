@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -29,6 +30,22 @@ func (s *Store) CreateUser(ctx context.Context, email, passwordHash string) (Use
 	).Scan(&u.ID, &u.Email, &u.PasswordHash, &u.CreatedAt)
 	if err != nil {
 		return User{}, fmt.Errorf("store: creating user: %w", err)
+	}
+	return u, nil
+}
+
+// GetUserByID is used by requireAdmin (internal/api/middleware.go) to check
+// a signed-in user's email against the admin allowlist.
+func (s *Store) GetUserByID(ctx context.Context, id int64) (User, error) {
+	var u User
+	err := s.db.QueryRowContext(ctx,
+		`SELECT id, email, created_at FROM users WHERE id = $1`, id,
+	).Scan(&u.ID, &u.Email, &u.CreatedAt)
+	if errors.Is(err, sql.ErrNoRows) {
+		return User{}, ErrNotFound
+	}
+	if err != nil {
+		return User{}, fmt.Errorf("store: getting user by id: %w", err)
 	}
 	return u, nil
 }

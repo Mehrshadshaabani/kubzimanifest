@@ -11,6 +11,37 @@
 <meta property="og:title" content="Kubernetes Manifest Security Checklist: 13 Things to Check Before You Deploy">
 <meta property="og:description" content="Every check Cubzi runs, explained — from root containers to hardcoded secrets.">
 <meta property="og:url" content="https://cubzi.cloud/blog/kubernetes-manifest-security-checklist">
+<meta property="og:image" content="https://cubzi.cloud/blog/images/kubernetes-manifest-security-checklist.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/blog/images/kubernetes-manifest-security-checklist.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Kubernetes Manifest Security Checklist: 13 Things to Check Before You Deploy",
+  "description": "Every check Cubzi runs, explained — from root containers to hardcoded secrets.",
+  "image": "https://cubzi.cloud/blog/images/kubernetes-manifest-security-checklist.png",
+  "url": "https://cubzi.cloud/blog/kubernetes-manifest-security-checklist",
+  "datePublished": "2026-08-25",
+  "dateModified": "2026-08-27",
+  "author": {
+    "@type": "Organization",
+    "name": "Cubzi"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cubzi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://cubzi.cloud/images/og-home.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://cubzi.cloud/blog/kubernetes-manifest-security-checklist"
+  }
+}
+</script>
 <style>
 :root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
 *{box-sizing:border-box}
@@ -70,6 +101,8 @@ footer a{color:var(--muted)}
   <div class="crumb"><a href="/blog">← Blog</a></div>
   <h1>Kubernetes Manifest Security Checklist: 13 Things to Check Before You Deploy</h1>
   <p class="meta">Security &middot; 8 min read</p>
+
+<img src="/blog/images/kubernetes-manifest-security-checklist.png" alt="Kubernetes Manifest Security Checklist: 13 Things to Check Before You Deploy" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:1.5rem;" width="1200" height="630" loading="eager">
 
   <p>Most Kubernetes security incidents don't start with a zero-day. They start with a manifest that got merged without anyone noticing it was missing a <code>securityContext</code>, or that a container image tag was left as <code>latest</code>. None of these are exotic mistakes — they're defaults, and Kubernetes' defaults are permissive by design because the API has to support every workload from a stateless web app to a CNI plugin that genuinely needs host networking.</p>
 

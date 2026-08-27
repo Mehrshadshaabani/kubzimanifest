@@ -11,6 +11,37 @@
 <meta property="og:title" content="How to Add Kubernetes Manifest Linting to Your CI/CD Pipeline">
 <meta property="og:description" content="Wiring automated Kubernetes manifest linting into a GitHub Actions pull request workflow, with PR comments and CI gating on critical findings.">
 <meta property="og:url" content="https://cubzi.cloud/blog/kubernetes-linting-in-github-actions-ci">
+<meta property="og:image" content="https://cubzi.cloud/blog/images/kubernetes-linting-in-github-actions-ci.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/blog/images/kubernetes-linting-in-github-actions-ci.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Add Kubernetes Manifest Linting to Your CI/CD Pipeline",
+  "description": "Wiring automated Kubernetes manifest linting into a GitHub Actions pull request workflow, with PR comments and CI gating on critical findings.",
+  "image": "https://cubzi.cloud/blog/images/kubernetes-linting-in-github-actions-ci.png",
+  "url": "https://cubzi.cloud/blog/kubernetes-linting-in-github-actions-ci",
+  "datePublished": "2026-08-25",
+  "dateModified": "2026-08-27",
+  "author": {
+    "@type": "Organization",
+    "name": "Cubzi"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cubzi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://cubzi.cloud/images/og-home.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://cubzi.cloud/blog/kubernetes-linting-in-github-actions-ci"
+  }
+}
+</script>
 <style>
 :root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
 *{box-sizing:border-box}
@@ -70,6 +101,8 @@ footer a{color:var(--muted)}
   <div class="crumb"><a href="/blog">← Blog</a></div>
   <h1>How to Add Kubernetes Manifest Linting to Your CI/CD Pipeline</h1>
   <p class="meta">CI/CD &middot; 5 min read</p>
+
+<img src="/blog/images/kubernetes-linting-in-github-actions-ci.png" alt="How to Add Kubernetes Manifest Linting to Your CI/CD Pipeline" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:1.5rem;" width="1200" height="630" loading="eager">
 
   <p>A linter that only runs when someone remembers to run it locally catches roughly nothing. The value of manifest linting compounds when it runs automatically on every pull request that touches Kubernetes YAML — visible to the reviewer, before merge, with no extra step for the author to remember.</p>
 

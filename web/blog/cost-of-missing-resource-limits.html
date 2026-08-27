@@ -11,6 +11,37 @@
 <meta property="og:title" content="The Hidden Cost of Missing Resource Requests and Limits">
 <meta property="og:description" content="No CPU/memory requests means no cost estimate — and no protection from a single pod starving an entire node.">
 <meta property="og:url" content="https://cubzi.cloud/blog/cost-of-missing-resource-limits">
+<meta property="og:image" content="https://cubzi.cloud/blog/images/cost-of-missing-resource-limits.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/blog/images/cost-of-missing-resource-limits.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "The Hidden Cost of Missing Resource Requests and Limits",
+  "description": "No CPU/memory requests means no cost estimate — and no protection from a single pod starving an entire node.",
+  "image": "https://cubzi.cloud/blog/images/cost-of-missing-resource-limits.png",
+  "url": "https://cubzi.cloud/blog/cost-of-missing-resource-limits",
+  "datePublished": "2026-08-25",
+  "dateModified": "2026-08-27",
+  "author": {
+    "@type": "Organization",
+    "name": "Cubzi"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cubzi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://cubzi.cloud/images/og-home.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://cubzi.cloud/blog/cost-of-missing-resource-limits"
+  }
+}
+</script>
 <style>
 :root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
 *{box-sizing:border-box}
@@ -70,6 +101,8 @@ footer a{color:var(--muted)}
   <div class="crumb"><a href="/blog">← Blog</a></div>
   <h1>The Hidden Cost of Missing Resource Requests and Limits</h1>
   <p class="meta">Cost &middot; 6 min read</p>
+
+<img src="/blog/images/cost-of-missing-resource-limits.png" alt="The Hidden Cost of Missing Resource Requests and Limits" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:1.5rem;" width="1200" height="630" loading="eager">
 
   <p>Of all the fields a Kubernetes manifest can omit, <code>resources.requests</code> and <code>resources.limits</code> are the two most likely to be missing — and the two with the widest-reaching consequences, touching both reliability and cost in ways that aren't obvious until something goes wrong.</p>
 

@@ -11,6 +11,37 @@
 <meta property="og:title" content="From Free Tier to Production: A Guide to Kubernetes Cost Optimization">
 <meta property="og:description" content="Where Kubernetes cloud spend actually goes, and the manifest-level changes that move the cost needle most, from early-stage to production scale.">
 <meta property="og:url" content="https://cubzi.cloud/blog/kubernetes-cost-optimization-guide">
+<meta property="og:image" content="https://cubzi.cloud/blog/images/kubernetes-cost-optimization-guide.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/blog/images/kubernetes-cost-optimization-guide.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "From Free Tier to Production: A Guide to Kubernetes Cost Optimization",
+  "description": "Where Kubernetes cloud spend actually goes, and the manifest-level changes that move the cost needle most, from early-stage to production scale.",
+  "image": "https://cubzi.cloud/blog/images/kubernetes-cost-optimization-guide.png",
+  "url": "https://cubzi.cloud/blog/kubernetes-cost-optimization-guide",
+  "datePublished": "2026-08-25",
+  "dateModified": "2026-08-27",
+  "author": {
+    "@type": "Organization",
+    "name": "Cubzi"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cubzi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://cubzi.cloud/images/og-home.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://cubzi.cloud/blog/kubernetes-cost-optimization-guide"
+  }
+}
+</script>
 <style>
 :root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
 *{box-sizing:border-box}
@@ -70,6 +101,8 @@ footer a{color:var(--muted)}
   <div class="crumb"><a href="/blog">← Blog</a></div>
   <h1>From Free Tier to Production: A Guide to Kubernetes Cost Optimization</h1>
   <p class="meta">Cost &middot; 7 min read</p>
+
+<img src="/blog/images/kubernetes-cost-optimization-guide.png" alt="From Free Tier to Production: A Guide to Kubernetes Cost Optimization" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:1.5rem;" width="1200" height="630" loading="eager">
 
   <p>Kubernetes cost optimization advice tends to jump straight to cluster-level tooling — autoscalers, spot instance strategies, bin-packing schedulers. All genuinely useful, and all downstream of a much simpler starting point: most Kubernetes overspend traces back to individual manifests requesting more than they need, or being sized once early on and never revisited.</p>
 

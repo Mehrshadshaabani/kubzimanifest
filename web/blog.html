@@ -12,6 +12,9 @@
 <meta property="og:title" content="Blog — Cubzi">
 <meta property="og:description" content="Practical guides on Kubernetes manifest security, cost estimation, and CI/CD linting.">
 <meta property="og:url" content="https://cubzi.cloud/blog">
+<meta property="og:image" content="https://cubzi.cloud/images/og-blog.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/images/og-blog.png">
 <style>
 :root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff}
 *{box-sizing:border-box}
@@ -27,10 +30,12 @@ header.hero{padding:3.5rem 0 2.5rem}
 header.hero h1{font-size:2.1rem;margin:0 0 .6rem;letter-spacing:-.01em}
 header.hero p{color:var(--muted);font-size:1.05rem;margin:0;max-width:560px}
 .posts{padding-bottom:4rem;display:grid;gap:1.1rem}
-.post-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-decoration:none;display:block;color:var(--text)}
+.post-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1rem;text-decoration:none;display:flex;gap:1.1rem;align-items:center;color:var(--text)}
 .post-card:hover{border-color:var(--accent)}
+.post-card img{width:180px;height:94px;object-fit:cover;border-radius:8px;border:1px solid var(--border);flex-shrink:0}
 .post-card h2{margin:0 0 .4rem;font-size:1.15rem}
 .post-card p{margin:0;color:var(--muted);font-size:.9rem}
+@media(max-width:560px){.post-card{flex-direction:column;align-items:stretch}.post-card img{width:100%;height:140px}}
 footer{border-top:1px solid var(--border);padding:2rem 0;color:var(--muted);font-size:.82rem}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
 footer a{color:var(--muted)}
@@ -46,6 +51,7 @@ footer a{color:var(--muted)}
     <a class="logo" href="/">Cubzi</a>
     <div class="navlinks">
       <a href="/#features">Features</a>
+      <a href="/services">Services</a>
       <a href="/#pricing">Pricing</a>
       <a href="/docs">API docs</a>
       <a href="/login">Open the tool</a>
@@ -62,45 +68,65 @@ footer a{color:var(--muted)}
 
 <div class="wrap posts">
   <a class="post-card" href="/blog/kubernetes-manifest-security-checklist">
+    <img src="/blog/images/kubernetes-manifest-security-checklist.png" alt="Kubernetes Manifest Security Checklist: 13 Things to Check Before You Deploy" loading="lazy" width="180" height="94">
+    <div>
     <h2>Kubernetes Manifest Security Checklist: 13 Things to Check Before You Deploy</h2>
     <p>Every check Cubzi runs, explained — from root containers to hardcoded secrets — and why each one matters.</p>
-  </a>
+  </div></a>
   <a class="post-card" href="/blog/how-much-does-kubernetes-deployment-cost">
+    <img src="/blog/images/how-much-does-kubernetes-deployment-cost.png" alt="How Much Does Your Kubernetes Deployment Actually Cost?" loading="lazy" width="180" height="94">
+    <div>
     <h2>How Much Does Your Kubernetes Deployment Actually Cost?</h2>
     <p>A practical guide to estimating cloud spend from resource requests, before a single pod is scheduled.</p>
-  </a>
+  </div></a>
   <a class="post-card" href="/blog/why-pods-should-not-run-as-root">
+    <img src="/blog/images/why-pods-should-not-run-as-root.png" alt="Why Your Pods Shouldn't Run as Root (and How to Fix It)" loading="lazy" width="180" height="94">
+    <div>
     <h2>Why Your Pods Shouldn't Run as Root (and How to Fix It)</h2>
     <p>What runAsNonRoot actually protects against, and the three-line fix most manifests are missing.</p>
-  </a>
+  </div></a>
   <a class="post-card" href="/blog/cost-of-missing-resource-limits">
+    <img src="/blog/images/cost-of-missing-resource-limits.png" alt="The Hidden Cost of Missing Resource Requests and Limits" loading="lazy" width="180" height="94">
+    <div>
     <h2>The Hidden Cost of Missing Resource Requests and Limits</h2>
     <p>No requests means no cost estimate — and no protection from a noisy-neighbor pod either.</p>
-  </a>
+  </div></a>
   <a class="post-card" href="/blog/kubernetes-networkpolicy-explained">
+    <img src="/blog/images/kubernetes-networkpolicy-explained.png" alt="NetworkPolicy 101: Why Your Namespace's Pod Traffic Might Be Wide Open" loading="lazy" width="180" height="94">
+    <div>
     <h2>NetworkPolicy 101: Why Your Namespace's Pod Traffic Might Be Wide Open</h2>
     <p>Kubernetes networking defaults to allow-all. Here's what that actually means and how to close it.</p>
-  </a>
+  </div></a>
   <a class="post-card" href="/blog/poddisruptionbudget-explained">
+    <img src="/blog/images/poddisruptionbudget-explained.png" alt="PodDisruptionBudgets Explained: Staying Available During Node Drains" loading="lazy" width="180" height="94">
+    <div>
     <h2>PodDisruptionBudgets Explained: Staying Available During Node Drains</h2>
     <p>What happens to a 3-replica Deployment during a cluster upgrade if you skip this one object.</p>
-  </a>
+  </div></a>
   <a class="post-card" href="/blog/aws-vs-gcp-vs-azure-kubernetes-pricing">
+    <img src="/blog/images/aws-vs-gcp-vs-azure-kubernetes-pricing.png" alt="Kubernetes Cost Estimation: AWS vs GCP vs Azure Pricing Compared" loading="lazy" width="180" height="94">
+    <div>
     <h2>Kubernetes Cost Estimation: AWS vs GCP vs Azure Pricing Compared</h2>
     <p>Why the same Deployment prices differently across clouds, and how to compare them fairly.</p>
-  </a>
+  </div></a>
   <a class="post-card" href="/blog/kubernetes-linting-in-github-actions-ci">
+    <img src="/blog/images/kubernetes-linting-in-github-actions-ci.png" alt="How to Add Kubernetes Manifest Linting to Your CI/CD Pipeline" loading="lazy" width="180" height="94">
+    <div>
     <h2>How to Add Kubernetes Manifest Linting to Your CI/CD Pipeline</h2>
     <p>Wiring the Cubzi GitHub Action into a pull request workflow in under ten minutes.</p>
-  </a>
+  </div></a>
   <a class="post-card" href="/blog/common-kubernetes-misconfigurations">
+    <img src="/blog/images/common-kubernetes-misconfigurations.png" alt="Common Kubernetes Misconfigurations That Lead to Security Incidents" loading="lazy" width="180" height="94">
+    <div>
     <h2>Common Kubernetes Misconfigurations That Lead to Security Incidents</h2>
     <p>Patterns behind real-world cluster compromises, and the manifest-level checks that catch them early.</p>
-  </a>
+  </div></a>
   <a class="post-card" href="/blog/kubernetes-cost-optimization-guide">
+    <img src="/blog/images/kubernetes-cost-optimization-guide.png" alt="From Free Tier to Production: A Guide to Kubernetes Cost Optimization" loading="lazy" width="180" height="94">
+    <div>
     <h2>From Free Tier to Production: A Guide to Kubernetes Cost Optimization</h2>
     <p>Where Kubernetes spend actually goes, and the manifest changes that move the needle most.</p>
-  </a>
+  </div></a>
 </div>
 
 <footer>

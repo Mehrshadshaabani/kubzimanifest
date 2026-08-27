@@ -11,6 +11,37 @@
 <meta property="og:title" content="How Much Does Your Kubernetes Deployment Actually Cost?">
 <meta property="og:description" content="A practical guide to estimating cloud spend from resource requests, before a single pod is scheduled.">
 <meta property="og:url" content="https://cubzi.cloud/blog/how-much-does-kubernetes-deployment-cost">
+<meta property="og:image" content="https://cubzi.cloud/blog/images/how-much-does-kubernetes-deployment-cost.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/blog/images/how-much-does-kubernetes-deployment-cost.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How Much Does Your Kubernetes Deployment Actually Cost?",
+  "description": "A practical guide to estimating cloud spend from resource requests, before a single pod is scheduled.",
+  "image": "https://cubzi.cloud/blog/images/how-much-does-kubernetes-deployment-cost.png",
+  "url": "https://cubzi.cloud/blog/how-much-does-kubernetes-deployment-cost",
+  "datePublished": "2026-08-25",
+  "dateModified": "2026-08-27",
+  "author": {
+    "@type": "Organization",
+    "name": "Cubzi"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cubzi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://cubzi.cloud/images/og-home.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://cubzi.cloud/blog/how-much-does-kubernetes-deployment-cost"
+  }
+}
+</script>
 <style>
 :root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
 *{box-sizing:border-box}
@@ -70,6 +101,8 @@ footer a{color:var(--muted)}
   <div class="crumb"><a href="/blog">← Blog</a></div>
   <h1>How Much Does Your Kubernetes Deployment Actually Cost?</h1>
   <p class="meta">Cost &middot; 7 min read</p>
+
+<img src="/blog/images/how-much-does-kubernetes-deployment-cost.png" alt="How Much Does Your Kubernetes Deployment Actually Cost?" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:1.5rem;" width="1200" height="630" loading="eager">
 
   <p>Ask most teams what a given Deployment costs per month and you'll get a shrug, or a link to last month's total cloud bill with no way to break it down by workload. Kubernetes doesn't bill you directly — the cloud provider bills for the nodes underneath it — so the connection between "this YAML file" and "this many dollars a month" is one most teams never actually calculate until the bill is a surprise.</p>
 

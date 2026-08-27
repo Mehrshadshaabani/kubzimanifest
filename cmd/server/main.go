@@ -27,6 +27,10 @@
 //	                    account.nowpayments.io (production), Store Settings tab.
 //	NOWPAYMENTS_API_BASE     defaults to the sandbox API (https://api-sandbox.nowpayments.io)
 //	NOWPAYMENTS_CALLBACK_URL public URL of this server's /v1/billing/webhook/nowpayments route
+//	ADMIN_EMAILS        comma-separated sign-in emails allowed to use /admin and /v1/admin/*.
+//	                    Defaults to shaabanimehrshad9@gmail.com. There's no separate admin
+//	                    account type — anyone who signs in (Google/GitHub) with an email on
+//	                    this list gets admin access automatically.
 package main
 
 import (
@@ -34,6 +38,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"mflint/internal/api"
@@ -51,6 +56,7 @@ func main() {
 		GoogleOAuth: auth.GoogleOAuthConfigFromEnv(),
 		GitHubOAuth: auth.GitHubOAuthConfigFromEnv(),
 		WebDir:      webDir,
+		AdminEmails: adminEmailsFromEnv(),
 	}
 	if srv.GoogleOAuth.Enabled() {
 		log.Println("Google OAuth configured: sign-in with Google is live")
@@ -122,4 +128,15 @@ func getenv(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func adminEmailsFromEnv() []string {
+	raw := getenv("ADMIN_EMAILS", "shaabanimehrshad9@gmail.com")
+	var emails []string
+	for _, e := range strings.Split(raw, ",") {
+		if e = strings.TrimSpace(e); e != "" {
+			emails = append(emails, e)
+		}
+	}
+	return emails
 }

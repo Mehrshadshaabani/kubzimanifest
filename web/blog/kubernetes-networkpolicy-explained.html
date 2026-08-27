@@ -11,6 +11,37 @@
 <meta property="og:title" content="NetworkPolicy 101: Why Your Namespace's Pod Traffic Might Be Wide Open">
 <meta property="og:description" content="Kubernetes networking defaults to allow-all between pods, cluster-wide. Here's what that means in practice and how to close it with a NetworkPolicy.">
 <meta property="og:url" content="https://cubzi.cloud/blog/kubernetes-networkpolicy-explained">
+<meta property="og:image" content="https://cubzi.cloud/blog/images/kubernetes-networkpolicy-explained.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cubzi.cloud/blog/images/kubernetes-networkpolicy-explained.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "NetworkPolicy 101: Why Your Namespace's Pod Traffic Might Be Wide Open",
+  "description": "Kubernetes networking defaults to allow-all between pods, cluster-wide. Here's what that means in practice and how to close it with a NetworkPolicy.",
+  "image": "https://cubzi.cloud/blog/images/kubernetes-networkpolicy-explained.png",
+  "url": "https://cubzi.cloud/blog/kubernetes-networkpolicy-explained",
+  "datePublished": "2026-08-25",
+  "dateModified": "2026-08-27",
+  "author": {
+    "@type": "Organization",
+    "name": "Cubzi"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cubzi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://cubzi.cloud/images/og-home.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://cubzi.cloud/blog/kubernetes-networkpolicy-explained"
+  }
+}
+</script>
 <style>
 :root{color-scheme:light dark;--bg:#0b0f14;--panel:#121821;--panel-2:#161d28;--border:#232b36;--text:#e6edf3;--muted:#8b98a5;--accent:#3fb950;--accent-dim:rgba(63,185,80,.12);--info:#58a6ff;--critical:#f85149;--warning:#d29922}
 *{box-sizing:border-box}
@@ -70,6 +101,8 @@ footer a{color:var(--muted)}
   <div class="crumb"><a href="/blog">← Blog</a></div>
   <h1>NetworkPolicy 101: Why Your Namespace's Pod Traffic Might Be Wide Open</h1>
   <p class="meta">Security &middot; 6 min read</p>
+
+<img src="/blog/images/kubernetes-networkpolicy-explained.png" alt="NetworkPolicy 101: Why Your Namespace's Pod Traffic Might Be Wide Open" style="width:100%;height:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:1.5rem;" width="1200" height="630" loading="eager">
 
   <p>Here's a fact that surprises a lot of people the first time they hear it: by default, any pod in a Kubernetes cluster can send traffic to any other pod in any namespace, on any port. There's no implicit isolation between namespaces, and there's no implicit isolation between an internal admin service and a public-facing web frontend, unless something has explicitly said otherwise.</p>
 

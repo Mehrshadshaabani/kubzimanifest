@@ -67,3 +67,37 @@ func userIDFromContext(ctx context.Context) (int64, bool) {
 	id, ok := ctx.Value(userIDKey).(int64)
 	return id, ok
 }
+
+// requireAdmin must be chained after requireAuth (it reads the user ID that
+// sets in the request context). There's no separate admin role in the
+// users table — it looks the signed-in user's email up and checks it
+// against Server.AdminEmails, since that's the one place admin identity is
+// configured (see cmd/server/main.go's ADMIN_EMAILS env var).
+func (s *Server) requireAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, ok := userIDFromContext(r.Context())
+		if !ok {
+			http.Error(w, "missing or invalid bearer token", http.StatusUnauthorized)
+			return
+		}
+		user, err := s.Store.GetUserByID(r.Context(), userID)
+		if err != nil {
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
+		if !s.isAdminEmail(user.Email) {
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (s *Server) isAdminEmail(email string) bool {
+	for _, e := range s.AdminEmails {
+		if strings.EqualFold(e, email) {
+			return true
+		}
+	}
+	return false
+}
