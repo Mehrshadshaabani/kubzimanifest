@@ -39,6 +39,7 @@ func (s *Server) Router() http.Handler {
 	r.Route("/v1", func(v1 chi.Router) {
 		v1.With(lintRateLimiter()).Post("/lint", s.handleLint)
 		v1.Get("/auth/providers", s.handleAuthProviders)
+		v1.Get("/services", s.handleListServices)
 
 		if s.Store != nil {
 			// Authenticate via the provider's own mechanism, not a bearer
@@ -55,6 +56,8 @@ func (s *Server) Router() http.Handler {
 				protected.Get("/api-keys", s.handleListAPIKeys)
 				protected.Post("/api-keys", s.handleCreateAPIKey)
 				protected.Delete("/api-keys/{id}", s.handleDeleteAPIKey)
+				protected.Post("/services/orders", s.handleCreateServiceOrder)
+				protected.Get("/services/orders", s.handleListServiceOrders)
 			})
 
 			if s.GoogleOAuth.Enabled() {
@@ -75,6 +78,7 @@ func (s *Server) Router() http.Handler {
 		r.Get("/login", s.serveWebFile("login.html"))
 		r.Get("/docs", s.serveWebFile("docs.html"))
 		r.Get("/privacy", s.serveWebFile("privacy.html"))
+		r.Get("/services", s.serveWebFile("services.html"))
 		r.Get("/blog", s.serveWebFile("blog.html"))
 		r.Get("/blog/{slug}", s.serveBlogPost)
 		r.Get("/robots.txt", s.serveWebFile("robots.txt"))

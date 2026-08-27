@@ -26,6 +26,11 @@ func (p *StripeProvider) CreateCheckout(ctx context.Context, userID int64, plan 
 	return Checkout{}, ErrNotConfigured
 }
 
+func (p *StripeProvider) CreateCustomCheckout(ctx context.Context, amountUSD float64, description string) (Checkout, error) {
+	// TODO: call Stripe Checkout Sessions API once a supported account exists.
+	return Checkout{}, ErrNotConfigured
+}
+
 func (p *StripeProvider) HandleWebhook(ctx context.Context, payload []byte, signature string) (string, bool, error) {
 	// TODO: verify webhook signature (stripe-go/webhook) and map the event
 	// to (orderID, paid).

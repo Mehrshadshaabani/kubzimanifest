@@ -77,17 +77,27 @@ func (p *NOWPaymentsProvider) CreateCheckout(ctx context.Context, userID int64, 
 	if !ok {
 		return Checkout{}, fmt.Errorf("billing: no USD price configured for plan %q", plan)
 	}
+	return p.createInvoice(ctx, price, fmt.Sprintf("mflint %s plan", plan))
+}
 
+// CreateCustomCheckout creates a NOWPayments invoice for an arbitrary USD
+// amount — used for internal/services fixed-price packages, which aren't a
+// subscription Plan.
+func (p *NOWPaymentsProvider) CreateCustomCheckout(ctx context.Context, amountUSD float64, description string) (Checkout, error) {
+	return p.createInvoice(ctx, amountUSD, description)
+}
+
+func (p *NOWPaymentsProvider) createInvoice(ctx context.Context, priceUSD float64, description string) (Checkout, error) {
 	orderID, err := randomOrderID()
 	if err != nil {
 		return Checkout{}, fmt.Errorf("billing: generating order id: %w", err)
 	}
 
 	reqBody, err := json.Marshal(nowpaymentsInvoiceRequest{
-		PriceAmount:      price,
+		PriceAmount:      priceUSD,
 		PriceCurrency:    "usd",
 		OrderID:          orderID,
-		OrderDescription: fmt.Sprintf("mflint %s plan", plan),
+		OrderDescription: description,
 		IPNCallbackURL:   p.CallbackURL,
 	})
 	if err != nil {

@@ -103,6 +103,7 @@
   <div>
     <h1><a href="/">Cubzi</a></h1>
     <p>Paste a Kubernetes manifest to check it against security/reliability rules and estimate monthly cloud cost. Nothing is stored unless you sign in.</p>
+    <p class="muted" style="margin-top:0.3rem">Need more than a linter? <a href="/services">Kubernetes & DevOps services →</a></p>
   </div>
   <div id="authbar">
     <div id="authAnon" class="controls">
@@ -114,6 +115,7 @@
       <button class="btn-secondary" id="upgradeTeamBtn">Upgrade to Team</button>
       <button class="btn-secondary" id="upgradeProBtn">Upgrade to Pro</button>
       <button class="btn-secondary" id="apiKeysBtn">API keys</button>
+      <button class="btn-secondary" id="ordersBtn">My orders</button>
       <button class="btn-secondary" id="signoutBtn">Sign out</button>
     </div>
   </div>
@@ -131,6 +133,11 @@
       <p class="muted" style="margin:0 0 0.4rem;">Copy this now — it won't be shown again:</p>
       <code id="newKeyValue" class="mono" style="word-break:break-all;"></code>
     </div>
+  </div>
+  <div class="panel" id="ordersPanel" style="display:none">
+    <h3 style="margin:0 0 0.25rem;font-size:0.95rem;">My service orders</h3>
+    <p class="muted" style="margin:0 0 0.9rem;">Kubernetes/DevOps engagements ordered from <a href="/services">/services</a>.</p>
+    <div id="ordersList" class="muted">Loading…</div>
   </div>
   <textarea id="manifest" placeholder="apiVersion: apps/v1&#10;kind: Deployment&#10;...">apiVersion: apps/v1
 kind: Deployment
@@ -210,6 +217,10 @@ const createKeyBtn = document.getElementById('createKeyBtn');
 const newKeyReveal = document.getElementById('newKeyReveal');
 const newKeyValue = document.getElementById('newKeyValue');
 
+const ordersBtn = document.getElementById('ordersBtn');
+const ordersPanel = document.getElementById('ordersPanel');
+const ordersList = document.getElementById('ordersList');
+
 const TOKEN_KEY = 'mflint_token';
 const getToken = () => localStorage.getItem(TOKEN_KEY);
 const setToken = (t) => localStorage.setItem(TOKEN_KEY, t);
@@ -223,6 +234,7 @@ async function refreshAuthUI() {
     saveRow.style.display = 'none';
     apiKeysPanel.style.display = 'none';
     newKeyReveal.style.display = 'none';
+    ordersPanel.style.display = 'none';
     return;
   }
   try {
@@ -283,6 +295,53 @@ apiKeysBtn.addEventListener('click', async () => {
   apiKeysPanel.style.display = showing ? 'none' : 'block';
   if (!showing) await loadAPIKeys();
 });
+
+ordersBtn.addEventListener('click', async () => {
+  const showing = ordersPanel.style.display !== 'none';
+  ordersPanel.style.display = showing ? 'none' : 'block';
+  if (!showing) await loadOrders();
+});
+
+const ORDER_STATUS_LABEL = {
+  pending_payment: 'Awaiting payment',
+  paid: 'Paid — we\'ll be in touch',
+  in_progress: 'In progress',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+};
+
+async function loadOrders() {
+  const token = getToken();
+  ordersList.textContent = 'Loading…';
+  try {
+    const res = await fetch('/v1/services/orders', { headers: { Authorization: 'Bearer ' + token } });
+    const orders = await res.json();
+    if (!res.ok) throw new Error('failed to load');
+    if (!orders.length) {
+      ordersList.innerHTML = 'No service orders yet. <a href="/services">Browse services →</a>';
+      return;
+    }
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr><th>Service</th><th>Package</th><th>Price</th><th>Status</th><th>Ordered</th></tr></thead>';
+    const tbody = document.createElement('tbody');
+    for (const o of orders) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHTML(o.serviceName)}</td>
+        <td>${escapeHTML(o.packageName)}</td>
+        <td>$${o.priceUsd}</td>
+        <td>${escapeHTML(ORDER_STATUS_LABEL[o.status] || o.status)}</td>
+        <td class="muted">${new Date(o.createdAt).toLocaleDateString()}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    ordersList.innerHTML = '';
+    ordersList.appendChild(table);
+  } catch (err) {
+    ordersList.textContent = 'Could not load service orders.';
+  }
+}
 
 async function loadAPIKeys() {
   const token = getToken();

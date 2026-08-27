@@ -43,6 +43,10 @@ type Provider interface {
 	Name() string
 	// CreateCheckout starts a checkout flow for userID to subscribe to plan.
 	CreateCheckout(ctx context.Context, userID int64, plan Plan) (Checkout, error)
+	// CreateCustomCheckout starts a checkout for an arbitrary one-off USD
+	// amount that isn't tied to a subscription Plan — used for the
+	// fixed-price service packages in internal/services.
+	CreateCustomCheckout(ctx context.Context, amountUSD float64, description string) (Checkout, error)
 	// HandleWebhook verifies a provider webhook payload and reports whether
 	// the order identified by orderID (== Checkout.OrderID from
 	// CreateCheckout) was paid. A payment provider doesn't know which user

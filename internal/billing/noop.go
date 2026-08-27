@@ -13,6 +13,10 @@ func (NoopProvider) CreateCheckout(ctx context.Context, userID int64, plan Plan)
 	return Checkout{}, ErrNotConfigured
 }
 
+func (NoopProvider) CreateCustomCheckout(ctx context.Context, amountUSD float64, description string) (Checkout, error) {
+	return Checkout{}, ErrNotConfigured
+}
+
 func (NoopProvider) HandleWebhook(ctx context.Context, payload []byte, signature string) (string, bool, error) {
 	return "", false, ErrNotConfigured
 }

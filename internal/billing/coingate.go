@@ -72,7 +72,17 @@ func (p *CoinGateProvider) CreateCheckout(ctx context.Context, userID int64, pla
 	if !ok {
 		return Checkout{}, fmt.Errorf("billing: no USD price configured for plan %q", plan)
 	}
+	return p.createOrder(ctx, price, fmt.Sprintf("mflint %s plan", plan))
+}
 
+// CreateCustomCheckout creates a CoinGate order for an arbitrary USD amount
+// — used for internal/services fixed-price packages, which aren't a
+// subscription Plan.
+func (p *CoinGateProvider) CreateCustomCheckout(ctx context.Context, amountUSD float64, description string) (Checkout, error) {
+	return p.createOrder(ctx, amountUSD, description)
+}
+
+func (p *CoinGateProvider) createOrder(ctx context.Context, priceUSD float64, title string) (Checkout, error) {
 	orderID, err := randomOrderID()
 	if err != nil {
 		return Checkout{}, fmt.Errorf("billing: generating order id: %w", err)
@@ -80,10 +90,10 @@ func (p *CoinGateProvider) CreateCheckout(ctx context.Context, userID int64, pla
 
 	form := url.Values{
 		"order_id":         {orderID},
-		"price_amount":     {fmt.Sprintf("%.2f", price)},
+		"price_amount":     {fmt.Sprintf("%.2f", priceUSD)},
 		"price_currency":   {"USD"},
 		"receive_currency": {p.ReceiveCurrency},
-		"title":            {fmt.Sprintf("mflint %s plan", plan)},
+		"title":            {title},
 	}
 	if p.CallbackURL != "" {
 		form.Set("callback_url", p.CallbackURL)

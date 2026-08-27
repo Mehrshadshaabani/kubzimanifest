@@ -99,31 +99,44 @@ func (s *Server) finishWebhook(w http.ResponseWriter, r *http.Request, body []by
 		return
 	}
 
-	session, err := s.Store.GetCheckoutSessionByOrderID(r.Context(), orderID)
-	if err != nil {
-		// Unknown order id: acknowledge with 200 so the provider doesn't
-		// retry forever over something that will never resolve.
+	if session, err := s.Store.GetCheckoutSessionByOrderID(r.Context(), orderID); err == nil {
+		if paid {
+			periodEnd := time.Now().Add(30 * 24 * time.Hour)
+			sub := store.Subscription{
+				UserID:           session.UserID,
+				Plan:             session.Plan,
+				Status:           "active",
+				Provider:         session.Provider,
+				ExternalID:       orderID,
+				CurrentPeriodEnd: &periodEnd,
+			}
+			if err := s.Store.UpsertSubscription(r.Context(), sub); err != nil {
+				log.Printf("finishWebhook: UpsertSubscription: %v", err)
+				http.Error(w, "internal error", http.StatusInternalServerError)
+				return
+			}
+			_ = s.Store.UpdateCheckoutSessionStatus(r.Context(), orderID, "completed")
+		}
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	if paid {
-		periodEnd := time.Now().Add(30 * 24 * time.Hour)
-		sub := store.Subscription{
-			UserID:           session.UserID,
-			Plan:             session.Plan,
-			Status:           "active",
-			Provider:         session.Provider,
-			ExternalID:       orderID,
-			CurrentPeriodEnd: &periodEnd,
+	// Not a subscription checkout — check whether it's a service-order
+	// checkout instead (see internal/api/handlers_services.go).
+	if session, err := s.Store.GetServiceCheckoutSessionByOrderID(r.Context(), orderID); err == nil {
+		if paid {
+			if err := s.Store.UpdateServiceOrderStatus(r.Context(), session.ServiceOrderID, "paid"); err != nil {
+				log.Printf("finishWebhook: UpdateServiceOrderStatus: %v", err)
+				http.Error(w, "internal error", http.StatusInternalServerError)
+				return
+			}
+			_ = s.Store.UpdateServiceCheckoutSessionStatus(r.Context(), orderID, "completed")
 		}
-		if err := s.Store.UpsertSubscription(r.Context(), sub); err != nil {
-			log.Printf("finishWebhook: UpsertSubscription: %v", err)
-			http.Error(w, "internal error", http.StatusInternalServerError)
-			return
-		}
-		_ = s.Store.UpdateCheckoutSessionStatus(r.Context(), orderID, "completed")
+		w.WriteHeader(http.StatusOK)
+		return
 	}
 
+	// Unknown order id: acknowledge with 200 so the provider doesn't retry
+	// forever over something that will never resolve.
 	w.WriteHeader(http.StatusOK)
 }
